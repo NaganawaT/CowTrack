@@ -119,4 +119,15 @@ Thumbs.db
 # Django
 staticfiles/
 media/
-logs/ 
+logs/
+
+# Development files
+*.xlsx
+*.csv
+analyze.py
+excel_analyzer.py
+excel_cow_list_analyzer.py
+db_analyzer.py
+fix_csv_encoding.py
+convert_cow_list_to_csv.py
+run_with_ngrok.py 
