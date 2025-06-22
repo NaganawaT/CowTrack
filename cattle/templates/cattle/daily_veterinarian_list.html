@@ -1,0 +1,87 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}日別獣医師設定一覧 - 牛の治療履歴管理システム{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="card-title mb-0">日別獣医師設定一覧</h2>
+            <a href="{% url 'cattle:daily_veterinarian_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> 新規設定
+            </a>
+        </div>
+        
+        <div class="card-body">
+            {% if daily_veterinarians %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>日付</th>
+                                <th>獣医師</th>
+                                <th>作成日時</th>
+                                <th>アクション</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for daily_vet in daily_veterinarians %}
+                            <tr>
+                                <td>{{ daily_vet.date|date:"Y年m月d日" }}</td>
+                                <td>{{ daily_vet.veterinarian.username }}</td>
+                                <td>{{ daily_vet.created_at|date:"Y年m月d日 H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'cattle:daily_veterinarian_edit' daily_vet.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i> 編集
+                                    </a>
+                                    <a href="{% url 'cattle:daily_veterinarian_delete' daily_vet.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i> 削除
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- ページネーション -->
+                {% if is_paginated %}
+                <nav aria-label="ページナビゲーション">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">&laquo; 最初</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">前へ</a>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                        </li>
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">次へ</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">最後 &raquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted">日別獣医師設定がありません。</p>
+                    <a href="{% url 'cattle:daily_veterinarian_create' %}" class="btn btn-primary">
+                        最初の設定を作成
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

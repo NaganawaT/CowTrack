@@ -1,0 +1,111 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}牛一覧 - 牛の治療履歴管理システム{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'cattle/css/cow_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">牛一覧</h2>
+    </div>
+    
+    <!-- 統計カード -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_cows }}</div>
+            <div class="stat-label">総牛数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ active_cows }}</div>
+            <div class="stat-label">活動中</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ recent_treatments }}</div>
+            <div class="stat-label">最近の治療</div>
+        </div>
+    </div>
+
+    <!-- 検索・フィルター -->
+    <div class="search-section">
+        <form method="get" class="search-form">
+            <div class="form-group">
+                <label for="search" class="form-label">検索</label>
+                <input type="text" name="search" id="search" class="form-control" 
+                       value="{{ request.GET.search }}" placeholder="牛番号、牛舎番号で検索">
+            </div>
+            <div class="form-group">
+                <label for="status" class="form-label">ステータス</label>
+                <select name="status" id="status" class="form-control">
+                    <option value="">すべて</option>
+                    <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>活動中</option>
+                    <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>非活動</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">検索</button>
+                <a href="{% url 'cattle:cow_list' %}" class="btn btn-secondary">リセット</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- 牛一覧テーブル -->
+    <div class="cow-table">
+        {% if cows %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>牛個体識別番号（10桁）</th>
+                            <th>牛舎番号</th>
+                            <th>性別</th>
+                            <th>導入日</th>
+                            <th>ステータス</th>
+                            <th>アクション</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cow in cows %}
+                        <tr class="cow-row" onclick="location.href='{% url 'cattle:cow_detail' cow.id %}'" style="cursor:pointer;">
+                            <td>{{ cow.id }}</td>
+                            <td>
+                                <span class="cow-number-display">
+                                    {{ cow.cow_number|slice:":5" }}<span class="cow-number-emphasis">{{ cow.cow_number|slice:"-5:" }}</span>
+                                </span>
+                            </td>
+                            <td>{{ cow.shed_code }}</td>
+                            <td>{{ cow.get_gender_display }}</td>
+                            <td>{{ cow.intake_date|date:"Y/m/d" }}</td>
+                            <td>
+                                <span class="status-badge {% if cow.status == 'active' %}status-active{% else %}status-inactive{% endif %}">
+                                    {{ cow.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'cattle:cow_edit' cow.id %}" class="btn btn-secondary" onclick="event.stopPropagation();">編集</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center">
+                <p>牛のデータが見つかりません。</p>
+                <a href="{% url 'cattle:cow_create' %}" class="btn btn-primary">最初の牛を登録</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- 新規登録ボタン -->
+    <div class="text-center mt-4">
+        <a href="{% url 'cattle:cow_create' %}" class="btn btn-success">新しい牛を登録</a>
+    </div>
+</div>
+{% endblock %} 

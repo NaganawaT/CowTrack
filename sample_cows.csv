@@ -1,0 +1,11 @@
+cow_number,shed_code,intake_date,gender,origin_region,status
+1234567890,A001,2024-01-15,female,北海道,active
+1234567891,A001,2024-01-20,castrated,曽於,active
+1234567892,A002,2024-02-01,female,関,active
+1234567893,A002,2024-02-05,female,飛騨,active
+1234567894,A003,2024-02-10,castrated,自家,active
+1234567895,A003,2024-02-15,female,北海道,active
+1234567896,A001,2024-03-01,female,曽於,active
+1234567897,A002,2024-03-05,castrated,関,active
+1234567898,A003,2024-03-10,female,飛騨,active
+1234567899,A001,2024-03-15,female,自家,active 

@@ -1,0 +1,153 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}治療履歴詳細 - 牛の治療履歴管理システム{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'cattle/css/treatment_detail.css' %}">
+<style>
+    .medicine-item {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .medicine-name {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 4px;
+    }
+    
+    .medicine-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .dosage-days {
+        color: #6c757d;
+        font-size: 14px;
+    }
+    
+    .medicine-notes {
+        color: #6c757d;
+        font-size: 13px;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">治療履歴詳細</h2>
+    </div>
+
+    <!-- 治療情報 -->
+    <div class="detail-grid">
+        <div class="info-card">
+            <h3>治療情報</h3>
+            <div class="info-row">
+                <span class="info-label">治療日時:</span>
+                <span class="info-value">{{ treatment.treatment_date|date:"Y年m月d日 H:i" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">対象牛:</span>
+                <span class="info-value">
+                    <a href="{% url 'cattle:cow_detail' treatment.cow.id %}" class="cow-link">
+                        {{ treatment.cow.cow_number }} ({{ treatment.cow.last5_digits }})
+                    </a>
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">牛舎番号:</span>
+                <span class="info-value">{{ treatment.cow.shed_code }}</span>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h3>診断・治療</h3>
+            <div class="info-row">
+                <span class="info-label">体温:</span>
+                <span class="info-value">
+                    {% if treatment.body_temperature %}
+                        {{ treatment.body_temperature }}°C
+                    {% else %}
+                        <span class="text-muted">記録なし</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">診断:</span>
+                <span class="info-value">
+                    {% if treatment.diagnosis %}
+                        {{ treatment.diagnosis }}
+                    {% else %}
+                        <span class="text-muted">記録なし</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">治療内容:</span>
+                <span class="info-value">
+                    {% if treatment.treatment_content %}
+                        {{ treatment.treatment_content }}
+                    {% else %}
+                        <span class="text-muted">記録なし</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">獣医師:</span>
+                <span class="info-value">
+                    {% if treatment.veterinarian %}
+                        {{ treatment.veterinarian }}
+                    {% else %}
+                        <span class="text-muted">記録なし</span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <h3>投薬情報</h3>
+            {% if treatment.get_medicines %}
+                {% for tm in treatment.get_medicines %}
+                <div class="medicine-item">
+                    <div class="medicine-name">{{ tm.medicine.name }}</div>
+                    <div class="medicine-details">
+                        <span class="dosage-days">投与日数: {{ tm.dosage_days }}日</span>
+                        {% if tm.medicine.notes %}
+                            <span class="medicine-notes">{{ tm.medicine.notes }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="info-row">
+                    <span class="info-value text-muted">投薬記録なし</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 備考 -->
+    {% if treatment.note %}
+    <div class="note-section">
+        <h3>備考</h3>
+        <div class="note-content">
+            {{ treatment.note|linebreaks }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- アクションボタン -->
+    <div class="detail-actions">
+        <a href="{% url 'cattle:treatment_edit' treatment.id %}" class="btn btn-primary">編集</a>
+        <a href="{% url 'cattle:cow_detail' treatment.cow.id %}" class="btn btn-secondary">牛の詳細</a>
+        <a href="{% url 'cattle:treatment_list' %}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+</div>
+{% endblock %} 

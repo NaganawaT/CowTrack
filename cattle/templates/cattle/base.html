@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}牛の治療履歴管理システム{% endblock %}</title>
+    
+    {% load static %}
+    
+    <!-- ベースCSS -->
+    <link rel="stylesheet" href="{% static 'cattle/css/base.css' %}">
+    
+    <!-- ページ固有のCSS -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="container">
+            <h1>牛の治療履歴管理システム</h1>
+        </div>
+    </header>
+    
+    <!-- ナビゲーション -->
+    <nav class="nav">
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="{% url 'cattle:dashboard' %}">ダッシュボード</a></li>
+                <li><a href="{% url 'cattle:cow_list' %}">牛一覧</a></li>
+                <li><a href="{% url 'cattle:cow_create' %}">牛登録</a></li>
+                <li><a href="{% url 'cattle:treatment_list' %}">治療履歴</a></li>
+                <li><a href="{% url 'cattle:treatment_create' %}">治療登録</a></li>
+                <li><a href="{% url 'cattle:treatment_summary_list' %}">治療一覧</a></li>
+                <li><a href="{% url 'cattle:feeding_observation_list' %}">餌観察</a></li>
+                <li><a href="{% url 'cattle:feeding_observation_create' %}">観察登録</a></li>
+                <li><a href="{% url 'cattle:daily_veterinarian_list' %}">獣医師設定</a></li>
+                <li><a href="{% url 'admin:index' %}">管理画面</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>🐄 牛の治療履歴管理システム</h3>
+                    <p>効率的な牛の健康管理と治療履歴の記録をサポートします。</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>クイックリンク</h4>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'cattle:dashboard' %}">ダッシュボード</a></li>
+                        <li><a href="{% url 'cattle:cow_list' %}">牛一覧</a></li>
+                        <li><a href="{% url 'cattle:cow_create' %}">牛登録</a></li>
+                        <li><a href="{% url 'cattle:treatment_list' %}">治療履歴</a></li>
+                        <li><a href="{% url 'cattle:treatment_create' %}">治療登録</a></li>
+                        <li><a href="{% url 'cattle:treatment_summary_list' %}">治療一覧</a></li>
+                        <li><a href="{% url 'cattle:feeding_observation_list' %}">餌観察</a></li>
+                        <li><a href="{% url 'cattle:feeding_observation_create' %}">観察登録</a></li>
+                        <li><a href="{% url 'cattle:daily_veterinarian_list' %}">獣医師設定</a></li>
+                        <li><a href="{% url 'admin:index' %}">管理画面</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>システム情報</h4>
+                    <ul class="footer-links">
+                        <li>バージョン: 1.0.0</li>
+                        <li>最終更新: 2024年12月</li>
+                        <li>Django 4.2.23</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 牛の治療履歴管理システム. All rights reserved.</p>
+                <p class="footer-version">Version 1.0.0 | Powered by Django</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

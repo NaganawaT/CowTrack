@@ -1,0 +1,66 @@
+{% extends 'cattle/base.html' %}
+
+{% block title %}餌観察記録削除確認 - 牛の治療履歴管理システム{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">餌観察記録削除確認</h2>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <h4 class="alert-heading">削除の確認</h4>
+                <p>以下の餌観察記録を削除しますか？この操作は取り消すことができません。</p>
+            </div>
+
+            <div class="observation-details mb-4">
+                <h5>削除対象の観察記録</h5>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>牛番号</th>
+                        <td>{{ object.cow.cow_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>牛舎番号</th>
+                        <td>{{ object.cow.shed_code }}</td>
+                    </tr>
+                    <tr>
+                        <th>観察日時</th>
+                        <td>{{ object.observed_at|date:'Y年m月d日 H:i' }}</td>
+                    </tr>
+                    <tr>
+                        <th>餌喰い</th>
+                        <td>
+                            {% if object.appetite == '○' %}○（良好）
+                            {% elif object.appetite == '△' %}△（普通）
+                            {% elif object.appetite == '×' %}×（不良）
+                            {% else %}-（記録なし）{% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>症状・異常</th>
+                        <td>{{ object.symptoms|default:'-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>備考</th>
+                        <td>{{ object.memo|default:'-' }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> 削除する
+                    </button>
+                    <a href="{% url 'cattle:feeding_observation_detail' object.pk %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> キャンセル
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

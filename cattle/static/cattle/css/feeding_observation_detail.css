@@ -1,0 +1,269 @@
+/* 餌観察記録詳細画面固有のスタイル */
+
+/* 詳細情報グリッド */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.info-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--accent);
+}
+
+.info-card h3 {
+    color: var(--accent);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.info-value {
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+/* 牛リンク */
+.cow-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.cow-link:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* 食欲バッジ */
+.appetite-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    min-width: 80px;
+    text-align: center;
+}
+
+.appetite-○ {
+    background: #d4edda;
+    color: #155724;
+}
+
+.appetite-△ {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.appetite-× {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.appetite-none {
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+/* 症状セクション */
+.symptoms-section {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--danger);
+}
+
+.symptoms-section h3 {
+    color: var(--danger);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.symptoms-content {
+    color: var(--text-dark);
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+/* 備考セクション */
+.memo-section {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--primary);
+}
+
+.memo-section h3 {
+    color: var(--primary);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.memo-content {
+    color: var(--text-dark);
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+/* アクションボタン */
+.detail-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.detail-actions .btn {
+    min-width: 120px;
+}
+
+/* スマホ対応 */
+@media (max-width: 768px) {
+    .detail-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-card {
+        padding: 1rem;
+    }
+    
+    .info-card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+        padding: 0.75rem 0;
+    }
+    
+    .info-label {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+    
+    .info-value {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    
+    .appetite-badge {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+        min-width: 70px;
+    }
+    
+    .symptoms-section,
+    .memo-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .symptoms-section h3,
+    .memo-section h3 {
+        font-size: 1rem;
+    }
+    
+    .symptoms-content,
+    .memo-content {
+        font-size: 0.9rem;
+    }
+    
+    .detail-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+    }
+    
+    .detail-actions .btn {
+        width: 100%;
+        max-width: 300px;
+        padding: 0.75rem;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    .info-card {
+        padding: 0.75rem;
+    }
+    
+    .info-card h3 {
+        font-size: 0.95rem;
+    }
+    
+    .info-row {
+        padding: 0.5rem 0;
+    }
+    
+    .info-label {
+        font-size: 0.85rem;
+    }
+    
+    .info-value {
+        font-size: 0.95rem;
+    }
+    
+    .appetite-badge {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.85rem;
+        min-width: 60px;
+    }
+    
+    .symptoms-section,
+    .memo-section {
+        padding: 0.75rem;
+    }
+    
+    .symptoms-content,
+    .memo-content {
+        font-size: 0.85rem;
+    }
+    
+    .detail-actions .btn {
+        max-width: none;
+        padding: 0.75rem;
+    }
+} 

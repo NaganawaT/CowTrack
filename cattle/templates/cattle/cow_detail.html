@@ -1,0 +1,121 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}{{ cow.cow_number }} - 牛詳細 - 牛の治療履歴管理システム{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'cattle/css/cow_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">{{ cow.cow_number }} の詳細情報</h2>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="detail-grid">
+        <div class="info-card">
+            <h3>基本情報</h3>
+            <div class="info-row">
+                <span class="info-label">ID:</span>
+                <span class="info-value">{{ cow.id }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">牛個体識別番号（10桁）:</span>
+                <span class="info-value">
+                    <span class="cow-number-display">
+                        {{ cow.cow_number|slice:":5" }}<span class="cow-number-emphasis">{{ cow.cow_number|slice:"-5:" }}</span>
+                    </span>
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">牛舎番号:</span>
+                <span class="info-value">{{ cow.shed_code }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">性別:</span>
+                <span class="info-value">{{ cow.get_gender_display }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">ステータス:</span>
+                <span class="status-display {% if cow.status == 'active' %}status-active{% else %}status-inactive{% endif %}">
+                    {{ cow.get_status_display }}
+                </span>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h3>管理情報</h3>
+            <div class="info-row">
+                <span class="info-label">導入日:</span>
+                <span class="info-value">{{ cow.intake_date|date:"Y年m月d日" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">導入元地域:</span>
+                <span class="info-value">{{ cow.get_origin_region_display }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 治療履歴 -->
+    <div class="treatment-history">
+        <div class="section-header">
+            <h3>治療履歴</h3>
+            <a href="{% url 'cattle:treatment_create' %}" class="btn btn-primary">治療記録を追加</a>
+        </div>
+        {% if treatments %}
+            {% for treatment in treatments %}
+            <div class="treatment-item">
+                <div class="treatment-header">
+                    <span class="treatment-date">{{ treatment.treatment_date|date:"Y年m月d日 H:i" }}</span>
+                    <span class="treatment-type">治療</span>
+                </div>
+                <div class="treatment-description">
+                    {% if treatment.diagnosis %}診断: {{ treatment.diagnosis }}{% endif %}
+                    {% if treatment.body_temperature %}<br>体温: {{ treatment.body_temperature }}°C{% endif %}
+                    {% if treatment.note %}<br>備考: {{ treatment.note }}{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>治療履歴がありません。</p>
+        {% endif %}
+    </div>
+
+    <!-- 餌観察記録 -->
+    <div class="feeding-observation-history">
+        <div class="section-header">
+            <h3>餌観察記録</h3>
+            <a href="{% url 'cattle:feeding_observation_create' %}" class="btn btn-primary">観察記録を追加</a>
+        </div>
+        {% if feeding_observations %}
+            {% for observation in feeding_observations %}
+            <div class="observation-item">
+                <div class="observation-header">
+                    <span class="observation-date">{{ observation.observed_at|date:"Y年m月d日 H:i" }}</span>
+                    <span class="appetite-badge appetite-{{ observation.appetite|default:'none' }}">
+                        {% if observation.appetite == '○' %}○（良好）
+                        {% elif observation.appetite == '△' %}△（普通）
+                        {% elif observation.appetite == '×' %}×（不良）
+                        {% else %}-（記録なし）{% endif %}
+                    </span>
+                </div>
+                <div class="observation-description">
+                    {% if observation.symptoms %}症状・異常: {{ observation.symptoms }}{% endif %}
+                    {% if observation.memo %}<br>備考: {{ observation.memo }}{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>餌観察記録がありません。</p>
+        {% endif %}
+    </div>
+
+    <!-- アクションボタン -->
+    <div class="detail-actions">
+        <a href="{% url 'cattle:cow_edit' cow.id %}" class="btn btn-primary">編集</a>
+        <a href="{% url 'cattle:cow_list' %}" class="btn btn-secondary">一覧に戻る</a>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,745 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cow-selection-container {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+    
+    .cow-selection-section h3 {
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 18px;
+    }
+    
+    .cow-selection-section h4 {
+        margin-bottom: 10px;
+        color: #333;
+        font-size: 16px;
+    }
+    
+    .search-box {
+        margin-bottom: 15px;
+    }
+    
+    .search-box input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .cow-list {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+    }
+    
+    .cow-item {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .cow-item:hover {
+        background-color: #f0f0f0;
+    }
+    
+    .cow-item.selected {
+        background-color: #e3f2fd;
+        border-left: 4px solid #2196f3;
+    }
+    
+    .cow-item:last-child {
+        border-bottom: none;
+    }
+    
+    .cow-info {
+        flex: 1;
+    }
+    
+    .cow-number {
+        font-weight: bold;
+        color: #333;
+        font-size: 16px;
+    }
+    
+    .cow-shed {
+        color: #666;
+        font-size: 14px;
+        margin-top: 2px;
+    }
+    
+    .selected-cow-display {
+        margin-top: 15px;
+        padding: 15px;
+        background-color: #e8f5e8;
+        border: 2px solid #4caf50;
+        border-radius: 4px;
+        display: none;
+    }
+    
+    .selected-cow-display.active {
+        display: block;
+    }
+    
+    .selected-cow-display h4 {
+        margin-bottom: 10px;
+        color: #2e7d32;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .alert {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+    }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 10px;
+    }
+    
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #545b62;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+    }
+    
+    .no-cows {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-style: italic;
+    }
+    
+    .preselected-cow-display {
+        margin-top: 15px;
+        padding: 15px;
+        background-color: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 4px;
+    }
+    
+    .preselected-cow-display h4 {
+        margin-bottom: 10px;
+        color: #856404;
+    }
+    
+    /* 薬剤選択のスタイル */
+    .medicine-selection {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+        background-color: #f9f9f9;
+    }
+    
+    .medicine-list {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    .medicine-item {
+        margin-bottom: 10px;
+        padding: 8px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        background-color: white;
+    }
+    
+    .medicine-checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    
+    .medicine-checkbox-label input[type="checkbox"] {
+        margin: 0;
+        width: 16px;
+        height: 16px;
+    }
+    
+    .medicine-name {
+        flex: 1;
+        font-weight: 500;
+    }
+    
+    .dosage-days-input {
+        width: 60px;
+        padding: 4px 8px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        font-size: 12px;
+        text-align: center;
+    }
+    
+    .dosage-unit {
+        font-size: 12px;
+        color: #666;
+        white-space: nowrap;
+    }
+    
+    .medicine-item:hover {
+        background-color: #f0f8ff;
+        border-color: #4a90e2;
+    }
+    
+    /* 過去最新の治療履歴表示のスタイル */
+    .previous-treatment-section {
+        margin: 20px 0;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+    }
+    
+    .previous-treatment-section h3 {
+        color: #495057;
+        margin-bottom: 15px;
+        font-size: 18px;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 8px;
+    }
+    
+    .previous-treatment-card {
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 15px;
+    }
+    
+    .previous-treatment-card > div {
+        margin-bottom: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .previous-treatment-card > div:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .treatment-date {
+        color: #dc3545;
+        font-weight: 600;
+    }
+    
+    .treatment-diagnosis,
+    .treatment-content,
+    .treatment-medicines,
+    .treatment-note {
+        color: #495057;
+    }
+    
+    .no-treatment-card {
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .no-treatment-card p {
+        margin: 0;
+        font-size: 16px;
+    }
+    
+    .loading-treatment {
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .loading-treatment p {
+        margin: 0;
+        color: #6c757d;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ title }}</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- 対象牛選択セクション -->
+        <div class="cow-selection-container">
+            <h3>餌観察記録から治療対象牛を選択</h3>
+            <p>餌観察記録に入っている牛の一覧から治療対象牛を選択してください。</p>
+            
+            <div class="search-box">
+                <input type="text" id="cow-search" placeholder="牛番号で検索...">
+            </div>
+            
+            <div class="cow-list" id="cow-list">
+                <div class="loading">餌観察記録から牛を読み込み中...</div>
+            </div>
+            
+            <div class="selected-cow-display" id="selected-cow-display">
+                <h4>選択された牛</h4>
+                <div class="cow-info">
+                    <div class="cow-number" id="selected-cow-number"></div>
+                    <div class="cow-shed" id="selected-cow-shed"></div>
+                </div>
+            </div>
+            
+            {% if preselected_cow %}
+            <div class="preselected-cow-display">
+                <h4>事前選択された牛</h4>
+                <div class="cow-info">
+                    <div class="cow-number">{{ preselected_cow.cow_number }}</div>
+                    <div class="cow-shed">牛舎: {{ preselected_cow.shed_code }}</div>
+                </div>
+                <input type="hidden" id="preselected-cow-id" value="{{ preselected_cow.id }}">
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- 隠しフィールド -->
+        <input type="hidden" id="selected-cow-id" name="cow" value="">
+        
+        <!-- 過去最新の治療履歴表示 -->
+        {% if latest_treatment %}
+        <div class="previous-treatment-section">
+            <h3>過去最新の治療履歴</h3>
+            <div class="previous-treatment-card">
+                <div class="treatment-date">
+                    <strong>治療日:</strong> {{ latest_treatment.treatment_date|date:"Y年m月d日 H:i" }}
+                </div>
+                <div class="treatment-diagnosis">
+                    <strong>診断:</strong> 
+                    {% if latest_treatment.diagnosis %}
+                        {{ latest_treatment.diagnosis }}
+                    {% else %}
+                        <span class="text-muted">記録なし</span>
+                    {% endif %}
+                </div>
+                <div class="treatment-content">
+                    <strong>治療内容:</strong> 
+                    {% if latest_treatment.treatment_content %}
+                        {{ latest_treatment.treatment_content }}
+                    {% else %}
+                        <span class="text-muted">記録なし</span>
+                    {% endif %}
+                </div>
+                <div class="treatment-medicines">
+                    <strong>投薬:</strong>
+                    {% if latest_medicines %}
+                        <div class="medicine-list">
+                            {% for tm in latest_medicines %}
+                                <span class="medicine-tag">{{ tm.medicine.name }}（{{ tm.dosage_days }}日）</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <span class="text-muted">投薬記録なし</span>
+                    {% endif %}
+                </div>
+                <div class="treatment-note">
+                    <strong>備考:</strong> 
+                    {% if latest_treatment.note %}
+                        {{ latest_treatment.note }}
+                    {% else %}
+                        <span class="text-muted">記録なし</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="previous-treatment-section">
+            <h3>過去の治療履歴</h3>
+            <div class="no-treatment-card">
+                <p class="text-muted">この牛の過去の治療履歴はありません。</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- その他のフォームフィールド -->
+        <div class="form-group">
+            <label for="{{ form.treatment_date.id_for_label }}">治療日時</label>
+            {{ form.treatment_date }}
+            {% if form.treatment_date.errors %}
+                <div class="alert alert-danger">{{ form.treatment_date.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.treatment_type.id_for_label }}">治療種別</label>
+            {{ form.treatment_type }}
+            {% if form.treatment_type.errors %}
+                <div class="alert alert-danger">{{ form.treatment_type.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.diagnosis.id_for_label }}">診断</label>
+            {{ form.diagnosis }}
+            {% if form.diagnosis.errors %}
+                <div class="alert alert-danger">{{ form.diagnosis.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.treatment_content.id_for_label }}">治療内容</label>
+            {{ form.treatment_content }}
+            {% if form.treatment_content.errors %}
+                <div class="alert alert-danger">{{ form.treatment_content.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label>投薬</label>
+            <div class="medicine-selection">
+                <div class="medicine-list">
+                    {% for medicine in form.medicines %}
+                    <div class="medicine-item">
+                        <label class="medicine-checkbox-label">
+                            {{ medicine.tag }}
+                            <span class="medicine-name">{{ medicine.choice_label }}</span>
+                            <input type="number" 
+                                   class="dosage-days-input" 
+                                   data-medicine-id="{{ medicine.data.value }}"
+                                   placeholder="投与日数"
+                                   min="1" 
+                                   max="365"
+                                   value="{{ medicine.data.attrs.default_days|default:1 }}">
+                            <span class="dosage-unit">日</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="medicine-dosage-days" name="medicine_dosage_days" value="">
+            </div>
+            {% if form.medicines.errors %}
+                <div class="alert alert-danger">{{ form.medicines.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <!-- 日別獣医師設定の表示 -->
+        {% if daily_veterinarian %}
+        <div class="form-group">
+            <div class="daily-veterinarian-notice" style="background-color: #e8f5e8; border: 1px solid #4caf50; border-radius: 4px; padding: 10px;">
+                <strong>今日の担当獣医師:</strong> {{ daily_veterinarian.username }}
+                <br>
+                <small style="color: #2e7d32;">日別獣医師設定により自動的に選択されます。</small>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="form-group">
+            <label for="{{ form.note.id_for_label }}">備考</label>
+            {{ form.note }}
+            {% if form.note.errors %}
+                <div class="alert alert-danger">{{ form.note.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
+        <a href="{% url 'cattle:treatment_list' %}" class="btn btn-secondary">キャンセル</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cowList = document.getElementById('cow-list');
+    const cowSearch = document.getElementById('cow-search');
+    const selectedCowId = document.getElementById('selected-cow-id');
+    const selectedCowDisplay = document.getElementById('selected-cow-display');
+    const selectedCowNumber = document.getElementById('selected-cow-number');
+    const selectedCowShed = document.getElementById('selected-cow-shed');
+    let allCows = [];
+    let filteredCows = [];
+    
+    // ページ読み込み時に餌観察記録から牛を取得
+    loadCowsFromFeedingObservations();
+    
+    // 牛の検索
+    cowSearch.addEventListener('input', function() {
+        filterCows(this.value);
+    });
+    
+    // 餌観察記録から牛を読み込む
+    function loadCowsFromFeedingObservations() {
+        fetch('/api/cows-from-feeding-observations/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                allCows = data.cows;
+                filteredCows = allCows;
+                displayCows();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                cowList.innerHTML = '<div class="no-cows">餌観察記録から牛を取得できませんでした。</div>';
+            });
+    }
+    
+    // 牛を表示
+    function displayCows() {
+        cowList.innerHTML = '';
+        
+        if (filteredCows.length === 0) {
+            cowList.innerHTML = '<div class="no-cows">餌観察記録に入っている牛が見つかりません。</div>';
+            return;
+        }
+        
+        filteredCows.forEach(cow => {
+            const cowItem = document.createElement('div');
+            cowItem.className = 'cow-item';
+            cowItem.dataset.cowId = cow.id;
+            
+            cowItem.innerHTML = `
+                <div class="cow-info">
+                    <div class="cow-number">${cow.cow_number}</div>
+                    <div class="cow-shed">牛舎: ${cow.shed_code}</div>
+                </div>
+            `;
+            
+            cowItem.addEventListener('click', function() {
+                selectCow(cow.id, cow.cow_number, cow.shed_code);
+            });
+            
+            cowList.appendChild(cowItem);
+        });
+        
+        // 事前選択された牛がある場合は自動選択
+        const preselectedCowId = document.getElementById('preselected-cow-id');
+        if (preselectedCowId) {
+            const cowId = preselectedCowId.value;
+            const preselectedCow = allCows.find(cow => cow.id == cowId);
+            if (preselectedCow) {
+                selectCow(preselectedCow.id, preselectedCow.cow_number, preselectedCow.shed_code);
+            }
+        }
+    }
+    
+    // 牛を検索
+    function filterCows(searchTerm) {
+        if (!searchTerm) {
+            filteredCows = allCows;
+        } else {
+            filteredCows = allCows.filter(cow => 
+                cow.cow_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                cow.shed_code.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+        displayCows();
+    }
+    
+    // 牛を選択
+    function selectCow(cowId, cowNumber, shedCode) {
+        // 既存の選択をクリア
+        document.querySelectorAll('.cow-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        
+        // 新しい選択を設定
+        const selectedItem = document.querySelector(`[data-cow-id="${cowId}"]`);
+        if (selectedItem) {
+            selectedItem.classList.add('selected');
+        }
+        
+        // 選択情報を更新
+        selectedCowId.value = cowId;
+        selectedCowNumber.textContent = cowNumber;
+        selectedCowShed.textContent = `牛舎: ${shedCode}`;
+        selectedCowDisplay.classList.add('active');
+        
+        // 過去の治療履歴を取得
+        loadPreviousTreatment(cowId);
+    }
+    
+    // 過去の治療履歴を取得
+    function loadPreviousTreatment(cowId) {
+        const previousTreatmentSection = document.querySelector('.previous-treatment-section');
+        if (!previousTreatmentSection) return;
+        
+        // ローディング表示
+        previousTreatmentSection.innerHTML = `
+            <h3>過去の治療履歴</h3>
+            <div class="loading-treatment">
+                <p>過去の治療履歴を読み込み中...</p>
+            </div>
+        `;
+        
+        // APIから過去の治療履歴を取得
+        fetch(`/api/cow/${cowId}/latest-treatment/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.treatment) {
+                    // 治療履歴がある場合
+                    previousTreatmentSection.innerHTML = `
+                        <h3>過去最新の治療履歴</h3>
+                        <div class="previous-treatment-card">
+                            <div class="treatment-date">
+                                <strong>治療日:</strong> ${data.treatment_date}
+                            </div>
+                            <div class="treatment-diagnosis">
+                                <strong>診断:</strong> 
+                                ${data.diagnosis || '<span class="text-muted">記録なし</span>'}
+                            </div>
+                            <div class="treatment-content">
+                                <strong>治療内容:</strong> 
+                                ${data.treatment_content || '<span class="text-muted">記録なし</span>'}
+                            </div>
+                            <div class="treatment-medicines">
+                                <strong>投薬:</strong>
+                                ${data.medicines.length > 0 ? 
+                                    `<div class="medicine-list">
+                                        ${data.medicines.map(med => 
+                                            `<span class="medicine-tag">${med.name}（${med.dosage_days}日）</span>`
+                                        ).join('')}
+                                    </div>` : 
+                                    '<span class="text-muted">投薬記録なし</span>'
+                                }
+                            </div>
+                            <div class="treatment-note">
+                                <strong>備考:</strong> 
+                                ${data.note || '<span class="text-muted">記録なし</span>'}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // 治療履歴がない場合
+                    previousTreatmentSection.innerHTML = `
+                        <h3>過去の治療履歴</h3>
+                        <div class="no-treatment-card">
+                            <p class="text-muted">この牛の過去の治療履歴はありません。</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                previousTreatmentSection.innerHTML = `
+                    <h3>過去の治療履歴</h3>
+                    <div class="no-treatment-card">
+                        <p class="text-muted">治療履歴の取得に失敗しました。</p>
+                    </div>
+                `;
+            });
+    }
+    
+    // 薬剤選択の機能
+    const medicineDosageDaysInput = document.getElementById('medicine-dosage-days');
+    const dosageInputs = document.querySelectorAll('.dosage-days-input');
+    
+    // 投与日数の変更を監視
+    dosageInputs.forEach(input => {
+        input.addEventListener('change', updateMedicineDosageDays);
+    });
+    
+    // チェックボックスの変更を監視
+    document.querySelectorAll('.medicine-checkbox-label input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updateMedicineDosageDays);
+    });
+    
+    // 薬剤と投与日数の情報を更新
+    function updateMedicineDosageDays() {
+        const dosageData = {};
+        
+        document.querySelectorAll('.medicine-checkbox-label').forEach(label => {
+            const checkbox = label.querySelector('input[type="checkbox"]');
+            const dosageInput = label.querySelector('.dosage-days-input');
+            
+            if (checkbox && checkbox.checked && dosageInput) {
+                const medicineId = dosageInput.dataset.medicineId;
+                const dosageDays = parseInt(dosageInput.value) || 1;
+                dosageData[medicineId] = dosageDays;
+            }
+        });
+        
+        medicineDosageDaysInput.value = JSON.stringify(dosageData);
+    }
+    
+    // 初期化時に投与日数を設定
+    updateMedicineDosageDays();
+});
+</script>
+{% endblock %} 

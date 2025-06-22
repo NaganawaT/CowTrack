@@ -1,0 +1,150 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}治療履歴一覧 - 牛の治療履歴管理システム{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'cattle/css/treatment_list.css' %}">
+<style>
+    .medicine-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .medicine-tag {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        padding: 2px 6px;
+        border-radius: 12px;
+        font-size: 11px;
+        border: 1px solid #bbdefb;
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">治療履歴一覧</h2>
+    </div>
+    
+    <!-- 統計カード -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_treatments }}</div>
+            <div class="stat-label">総治療数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ recent_treatments }}</div>
+            <div class="stat-label">最近7日間</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ cows.count }}</div>
+            <div class="stat-label">対象牛数</div>
+        </div>
+    </div>
+
+    <!-- 検索・フィルター -->
+    <div class="search-section">
+        <form method="get" class="search-form">
+            <div class="form-group">
+                <label for="search" class="form-label">検索</label>
+                <input type="text" name="search" id="search" class="form-control" 
+                       value="{{ request.GET.search }}" placeholder="牛番号、診断、備考で検索">
+            </div>
+            <div class="form-group">
+                <label for="cow" class="form-label">対象牛</label>
+                <select name="cow" id="cow" class="form-control">
+                    <option value="">すべての牛</option>
+                    {% for cow in cows %}
+                        <option value="{{ cow.id }}" {% if request.GET.cow == cow.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cow.cow_number }} ({{ cow.last5_digits }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">検索</button>
+                <a href="{% url 'cattle:treatment_list' %}" class="btn btn-secondary">リセット</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- 治療履歴一覧 -->
+    <div class="treatment-table">
+        {% if treatments %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>治療日時</th>
+                            <th>対象牛</th>
+                            <th>診断</th>
+                            <th>投薬</th>
+                            <th>体温</th>
+                            <th>アクション</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for treatment in treatments %}
+                        <tr>
+                            <td>{{ treatment.treatment_date|date:"Y/m/d H:i" }}</td>
+                            <td>
+                                <a href="{% url 'cattle:cow_detail' treatment.cow.id %}" class="cow-link">
+                                    {{ treatment.cow.cow_number }}
+                                </a>
+                                <br>
+                                <small class="text-muted">{{ treatment.cow.last5_digits }}</small>
+                            </td>
+                            <td>
+                                {% if treatment.diagnosis %}
+                                    {{ treatment.diagnosis|truncatechars:50 }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if treatment.get_medicines %}
+                                    <div class="medicine-list">
+                                        {% for tm in treatment.get_medicines %}
+                                            <span class="medicine-tag">{{ tm.medicine.name }}（{{ tm.dosage_days }}日）</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if treatment.body_temperature %}
+                                    {{ treatment.body_temperature }}°C
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'cattle:treatment_detail' treatment.id %}" class="btn btn-primary">詳細</a>
+                                    <a href="{% url 'cattle:treatment_edit' treatment.id %}" class="btn btn-secondary" onclick="event.stopPropagation();">編集</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center">
+                <p>治療履歴が見つかりません。</p>
+                <a href="{% url 'cattle:treatment_create' %}" class="btn btn-primary">最初の治療履歴を登録</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- 新規登録ボタン -->
+    <div class="text-center mt-4">
+        <a href="{% url 'cattle:treatment_create' %}" class="btn btn-success">新しい治療履歴を登録</a>
+    </div>
+</div>
+{% endblock %} 

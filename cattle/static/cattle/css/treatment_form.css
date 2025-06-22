@@ -1,0 +1,214 @@
+/* 治療履歴フォーム画面のスタイル */
+
+/* フォームコンテナ */
+.form-container {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.treatment-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group .form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: var(--white);
+    color: var(--text-dark);
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+}
+
+.error-message {
+    color: var(--danger);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: rgba(220, 53, 69, 0.1);
+    border-radius: 4px;
+    border-left: 3px solid var(--danger);
+}
+
+.help-text {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+    border-color: var(--danger);
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+.form-group input.error:focus,
+.form-group select.error:focus,
+.form-group textarea.error:focus {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.form-actions .btn {
+    min-width: 120px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.form-actions .btn-primary {
+    background-color: var(--accent);
+    color: var(--white);
+}
+
+.form-actions .btn-primary:hover {
+    background-color: #e0a800;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+.form-actions .btn-secondary {
+    background-color: var(--secondary);
+    color: var(--white);
+}
+
+.form-actions .btn-secondary:hover {
+    background-color: var(--secondary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-group select {
+    cursor: pointer;
+}
+
+.form-group .form-label.required::after {
+    content: " *";
+    color: var(--danger);
+    font-weight: bold;
+}
+
+/* スマホ対応 */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 1rem;
+        border-radius: 6px;
+    }
+    
+    .treatment-form {
+        max-width: 100%;
+    }
+    
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-group .form-label {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.75rem;
+        font-size: 16px; /* iOSでズームを防ぐ */
+        border-radius: 6px;
+        min-height: 44px;
+    }
+    
+    .form-group textarea {
+        min-height: 80px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        max-width: 300px;
+        padding: 0.75rem;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-container {
+        padding: 0.75rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group .form-label {
+        font-size: 0.95rem;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.75rem;
+        font-size: 16px;
+    }
+    
+    .form-actions .btn {
+        max-width: none;
+        padding: 0.75rem;
+    }
+} 

@@ -1,0 +1,153 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}ダッシュボード - 牛の治療履歴管理システム{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'cattle/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- 統計カード -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">🐄</div>
+            <div class="stat-content">
+                <div class="stat-number">{{ total_cows }}</div>
+                <div class="stat-label">総牛数</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-content">
+                <div class="stat-number">{{ active_cows }}</div>
+                <div class="stat-label">活動中</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🏥</div>
+            <div class="stat-content">
+                <div class="stat-number">{{ today_treatments }}</div>
+                <div class="stat-label">今日の治療</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-content">
+                <div class="stat-number">{{ week_treatments }}</div>
+                <div class="stat-label">今週の治療</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- メインコンテンツ -->
+    <div class="dashboard-content">
+        <!-- 最近の治療履歴 -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>最近の治療履歴</h3>
+                <a href="{% url 'cattle:treatment_list' %}" class="btn btn-primary">すべて見る</a>
+            </div>
+            <div class="card-content">
+                {% if recent_treatments %}
+                    <div class="treatment-list">
+                        {% for treatment in recent_treatments %}
+                        <div class="treatment-item">
+                            <div class="treatment-info">
+                                <div class="treatment-date">{{ treatment.treatment_date|date:"m/d H:i" }}</div>
+                                <div class="treatment-cow">
+                                    <a href="{% url 'cattle:cow_detail' treatment.cow.id %}">
+                                        {{ treatment.cow.cow_number }}
+                                    </a>
+                                </div>
+                                <div class="treatment-diagnosis">
+                                    {% if treatment.diagnosis %}
+                                        {{ treatment.diagnosis|truncatechars:30 }}
+                                    {% else %}
+                                        <span class="text-muted">診断なし</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="treatment-actions">
+                                <a href="{% url 'cattle:treatment_detail' treatment.id %}" class="btn btn-secondary">詳細</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">治療履歴がありません</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 最近登録された牛 -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>最近登録された牛</h3>
+                <a href="{% url 'cattle:cow_list' %}" class="btn btn-primary">すべて見る</a>
+            </div>
+            <div class="card-content">
+                {% if recent_cows %}
+                    <div class="cow-list">
+                        {% for cow in recent_cows %}
+                        <div class="cow-item">
+                            <div class="cow-info">
+                                <div class="cow-number">
+                                    <a href="{% url 'cattle:cow_detail' cow.id %}">
+                                        {{ cow.cow_number }}
+                                    </a>
+                                </div>
+                                <div class="cow-details">
+                                    <span class="cow-shed">牛舎: {{ cow.shed_code }}</span>
+                                    <span class="cow-status status-{{ cow.status }}">
+                                        {% if cow.status == 'active' %}活動中{% else %}非活動{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="cow-actions">
+                                <a href="{% url 'cattle:cow_detail' cow.id %}" class="btn btn-secondary">詳細</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">登録された牛がありません</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 牛舎別統計 -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>牛舎別統計</h3>
+        </div>
+        <div class="card-content">
+            {% if shed_stats %}
+                <div class="shed-stats">
+                    {% for shed in shed_stats %}
+                    <div class="shed-stat-item">
+                        <div class="shed-code">{{ shed.shed_code }}</div>
+                        <div class="shed-count">{{ shed.count }}頭</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center text-muted">牛舎データがありません</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- クイックアクション -->
+    <div class="quick-actions">
+        <h3>クイックアクション</h3>
+        <div class="action-buttons">
+            <a href="{% url 'cattle:cow_create' %}" class="btn btn-success">新しい牛を登録</a>
+            <a href="{% url 'cattle:treatment_create' %}" class="btn btn-success">治療履歴を登録</a>
+            <a href="{% url 'cattle:cow_list' %}" class="btn btn-primary">牛一覧</a>
+            <a href="{% url 'cattle:treatment_list' %}" class="btn btn-primary">治療履歴一覧</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

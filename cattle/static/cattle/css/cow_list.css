@@ -1,0 +1,204 @@
+/* 牛一覧画面固有のスタイル */
+
+/* 牛個体識別番号の表示 */
+.cow-number-display {
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.cow-number-emphasis {
+    background: var(--accent);
+    color: var(--white);
+    padding: 1px 3px;
+    border-radius: 3px;
+    font-weight: 700;
+    margin-left: 1px;
+}
+
+/* 検索・フィルターエリア */
+.search-section {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--primary-medium);
+}
+
+.search-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+/* 牛一覧テーブル */
+.cow-table {
+    margin-top: 1rem;
+}
+
+.cow-table .table th {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.cow-table .table th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.cow-table .table th:last-child {
+    border-top-right-radius: 8px;
+}
+
+/* ステータスバッジ */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+.status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* アクションボタン */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* 統計カード */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--accent);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--gray);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* スマホ対応 */
+@media (max-width: 768px) {
+    .search-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .search-form {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .search-form .form-group {
+        margin-bottom: 0;
+    }
+    
+    .search-form .btn {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 0.85rem;
+        min-height: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-section {
+        padding: 0.75rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .stat-card {
+        padding: 0.75rem;
+    }
+    
+    .stat-number {
+        font-size: 1.3rem;
+    }
+    
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+.cow-row:hover {
+    background: #f0f8ff;
+    transition: background 0.2s;
+} 

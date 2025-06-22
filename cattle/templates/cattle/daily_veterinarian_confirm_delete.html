@@ -1,0 +1,131 @@
+{% extends 'cattle/base.html' %}
+
+{% block title %}日別獣医師設定削除確認 - 牛の治療履歴管理システム{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">日別獣医師設定削除確認</h2>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <h4 class="alert-heading">削除の確認</h4>
+                <p>以下の日別獣医師設定を削除しますか？この操作は取り消すことができません。</p>
+            </div>
+
+            <div class="veterinarian-details mb-4">
+                <h5>削除対象の設定</h5>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>日付</th>
+                        <td>{{ object.date|date:'Y年m月d日' }}</td>
+                    </tr>
+                    <tr>
+                        <th>獣医師</th>
+                        <td>{{ object.veterinarian.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>作成日時</th>
+                        <td>{{ object.created_at|date:'Y年m月d日 H:i' }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger">削除</button>
+                    <a href="{% url 'cattle:daily_veterinarian_list' %}" class="btn btn-secondary">キャンセル</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.alert {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 6px;
+    border-left: 4px solid;
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+.alert-heading {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    background-color: transparent;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 0.75rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table-bordered th,
+.table-bordered td {
+    border: 1px solid #dee2e6;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #eee;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #545b62;
+    transform: translateY(-1px);
+}
+</style>
+{% endblock %} 

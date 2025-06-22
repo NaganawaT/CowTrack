@@ -1,0 +1,170 @@
+/* 治療履歴一覧画面固有のスタイル */
+
+/* 検索・フィルターエリア */
+.search-section {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--accent);
+}
+
+.search-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+/* 治療履歴テーブル */
+.treatment-table {
+    margin-top: 1rem;
+}
+
+.treatment-table .table th {
+    background: var(--accent);
+    color: var(--white);
+}
+
+.treatment-table .table th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.treatment-table .table th:last-child {
+    border-top-right-radius: 8px;
+}
+
+/* 牛リンク */
+.cow-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.cow-link:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* アクションボタン */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* 統計カード */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--accent);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--gray);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* スマホ対応 */
+@media (max-width: 768px) {
+    .search-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .search-form {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .search-form .form-group {
+        margin-bottom: 0;
+    }
+    
+    .search-form .btn {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 0.85rem;
+        min-height: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-section {
+        padding: 0.75rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .stat-card {
+        padding: 0.75rem;
+    }
+    
+    .stat-number {
+        font-size: 1.3rem;
+    }
+} 

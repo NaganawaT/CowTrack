@@ -1,0 +1,278 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+{% load cattle_extras %}
+
+{% block title %}餌観察記録一覧 - 牛の治療履歴管理システム{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'cattle/css/treatment_colors.css' %}">
+<link rel="stylesheet" href="{% static 'cattle/css/feeding_observation_list.css' %}">
+<style>
+    .treatment-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .medicine-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px;
+    }
+    
+    .medicine-tag {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        padding: 1px 4px;
+        border-radius: 8px;
+        font-size: 10px;
+        border: 1px solid #bbdefb;
+        white-space: nowrap;
+    }
+    
+    /* 日付ナビゲーションのスタイル */
+    .date-navigation {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .current-date {
+        text-align: center;
+    }
+    
+    .current-date h3 {
+        color: #495057;
+        font-weight: 600;
+    }
+    
+    /* クリック可能な未治療バッジのスタイル */
+    .treatment-badge.clickable {
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+    
+    .treatment-badge.clickable:hover {
+        background-color: #ffca2c;
+        color: #000;
+        transform: scale(1.05);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">餌観察記録一覧</h2>
+    </div>
+
+    <!-- 日付ナビゲーション -->
+    <div class="date-navigation mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="?date={{ prev_date|date:'Y-m-d' }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="btn btn-outline-secondary">
+                <i class="fas fa-chevron-left"></i> {{ prev_date|date:'m月d日' }}
+            </a>
+            <div class="current-date">
+                <h3 class="mb-0">{{ current_date_str }}</h3>
+                {% if is_today %}
+                    <small class="text-success">今日</small>
+                {% endif %}
+            </div>
+            <a href="?date={{ next_date|date:'Y-m-d' }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="btn btn-outline-secondary">
+                {{ next_date|date:'m月d日' }} <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- 並び替えボタン -->
+    <div class="sort-toggle text-end mb-2">
+        {% if sort == 'alternate' %}
+            <a href="?date={{ current_date|date:'Y-m-d' }}&sort=normal" class="btn btn-outline-primary">牛舎番号昇順で表示</a>
+        {% else %}
+            <a href="?date={{ current_date|date:'Y-m-d' }}&sort=alternate" class="btn btn-outline-primary">交互ソートで表示</a>
+        {% endif %}
+        <a href="{% url 'cattle:treatment_summary_list' %}?date={{ current_date|date:'Y-m-d' }}" class="btn btn-outline-info ms-2">
+            <i class="fas fa-stethoscope"></i> 治療一覧
+        </a>
+    </div>
+
+    <!-- 治療状況の凡例 -->
+    <div class="treatment-legend mb-3">
+        <div class="legend-item">
+            <div class="legend-color new-observation-color"></div>
+            <span>新規登録</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color re-examination-color"></div>
+            <span>再診</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color untreated-color"></div>
+            <span>自己治療</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color follow-up-color"></div>
+            <span>経過観察</span>
+        </div>
+    </div>
+
+    <!-- 餌観察記録一覧（テーブル） -->
+    <div class="observation-table">
+        {% if observations %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>牛舎番号</th>
+                            <th>導入月</th>
+                            <th>導入元地域</th>
+                            <th>牛番号</th>
+                            <th>餌喰い</th>
+                            <th>症状・異常</th>
+                            <th>治療状況</th>
+                            <th>アクション</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for observation in observations %}
+                        <tr class="observation-row 
+                            {% if observation.cow.id in new_observation_cows %}new-observation
+                            {% elif observation.treatment_status == 're_examination' %}re-examination
+                            {% elif observation.treatment_status == 'self_treatment' %}untreated
+                            {% elif observation.treatment_status == 'follow_up' %}follow-up
+                            {% elif observation.cow.treatment_set.exists %}treated
+                            {% else %}untreated{% endif %}" 
+                            onclick="location.href='{% url 'cattle:feeding_observation_detail' observation.id %}'" style="cursor:pointer;">
+                            <td>{{ observation.cow.shed_code }}</td>
+                            <td>{{ observation.cow|intake_month }}</td>
+                            <td>{{ observation.cow.origin_region|region_short }}</td>
+                            <td>
+                                <a href="{% url 'cattle:cow_detail' observation.cow.id %}" class="cow-link" onclick="event.stopPropagation();">
+                                    {{ observation.cow.cow_number|slice:"-5:" }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="appetite-badge appetite-{{ observation.appetite|default:'none' }}">
+                                    {% if observation.appetite == '○' %}○
+                                    {% elif observation.appetite == '△' %}△
+                                    {% elif observation.appetite == '×' %}×
+                                    {% else %}-{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% if observation.symptoms %}
+                                    {% if "自動登録" in observation.symptoms %}
+                                        <div class="auto-registered">
+                                            <i class="fas fa-robot text-info me-1"></i>
+                                            {{ observation.symptoms|truncatechars:50 }}
+                                        </div>
+                                    {% else %}
+                                        {{ observation.symptoms|truncatechars:50 }}
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if observation.treatment_status == 'untreated' %}
+                                    <span class="treatment-badge treatment-none">
+                                        <i class="fas fa-circle"></i> 未治療
+                                    </span>
+                                {% elif observation.treatment_status == 're_examination' %}
+                                    <span class="treatment-badge treatment-treated">
+                                        <i class="fas fa-stethoscope"></i> 再診
+                                    </span>
+                                {% elif observation.treatment_status == 'self_treatment' %}
+                                    <span class="treatment-badge treatment-treated">
+                                        <i class="fas fa-user-md"></i> 自己治療
+                                    </span>
+                                {% elif observation.treatment_status == 'follow_up' %}
+                                    <span class="treatment-badge treatment-treated">
+                                        <i class="fas fa-eye"></i> 経過観察
+                                    </span>
+                                {% else %}
+                                    <span class="treatment-badge treatment-none">
+                                        <i class="fas fa-circle"></i> 未治療
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'cattle:feeding_observation_edit' observation.id %}" class="btn btn-secondary" onclick="event.stopPropagation();">編集</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center">
+                <p>餌観察記録が見つかりません。</p>
+                <a href="{% url 'cattle:feeding_observation_create' %}" class="btn btn-primary">最初の観察記録を登録</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- 統計カード -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_observations }}</div>
+            <div class="stat-label">総観察数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ today_observations }}</div>
+            <div class="stat-label">{{ current_date_str }}の観察</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ cows.count }}</div>
+            <div class="stat-label">対象牛数</div>
+        </div>
+    </div>
+
+    <!-- 検索・フィルター（ページ下部へ移動） -->
+    <div class="search-section">
+        <form method="get" class="search-form">
+            <div class="form-group">
+                <label for="search" class="form-label">検索</label>
+                <input type="text" name="search" id="search" class="form-control" 
+                       value="{{ request.GET.search }}" placeholder="牛番号、症状、備考で検索">
+            </div>
+            <div class="form-group">
+                <label for="cow" class="form-label">対象牛</label>
+                <select name="cow" id="cow" class="form-control">
+                    <option value="">すべての牛</option>
+                    {% for cow in cows %}
+                        <option value="{{ cow.id }}" {% if request.GET.cow == cow.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cow.shed_code }}｜{{ cow.intake_date|date:'n' }}{{ cow.origin_region|region_short }}｜{{ cow.cow_number|slice:"-5:" }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="appetite" class="form-label">食欲</label>
+                <select name="appetite" id="appetite" class="form-control">
+                    <option value="">すべて</option>
+                    <option value="○" {% if request.GET.appetite == "○" %}selected{% endif %}>○（良好）</option>
+                    <option value="△" {% if request.GET.appetite == "△" %}selected{% endif %}>△（普通）</option>
+                    <option value="×" {% if request.GET.appetite == "×" %}selected{% endif %}>×（不良）</option>
+                    <option value="-" {% if request.GET.appetite == "-" %}selected{% endif %}>-（記録なし）</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">検索</button>
+                <a href="{% url 'cattle:feeding_observation_list' %}" class="btn btn-secondary">リセット</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- 新規登録ボタン -->
+    <div class="text-center mt-4">
+        <a href="{% url 'cattle:feeding_observation_create' %}" class="btn btn-success">新しい観察記録を登録</a>
+    </div>
+</div>
+{% endblock %} 

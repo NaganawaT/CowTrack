@@ -1,0 +1,86 @@
+/* 治療状況の色定義 - 一元管理用 */
+
+/* 治療状況の色定義 */
+:root {
+    --treatment-new: #20c997;        /* 新規登録（ティール） */
+    --treatment-re-examination: #dc3545;  /* 再診（赤） */
+    --treatment-untreated: #ffc107;   /* 自己治療（黄） */
+    --treatment-follow-up: #007bff;   /* 経過観察（青） */
+    --treatment-treated: #28a745;     /* 治療済み（緑） */
+    
+    /* 行の背景色 */
+    --row-background: #ffffff;
+    --row-hover: #f8f9fa;
+    --row-treated-background: #e9ecef;
+    --row-treated-opacity: 0.8;
+}
+
+/* 凡例の色スタイル */
+.new-observation-color {
+    background-color: var(--row-background) !important;
+    border-left: 4px solid var(--treatment-new) !important;
+}
+
+.re-examination-color {
+    background-color: var(--row-background) !important;
+    border-left: 4px solid var(--treatment-re-examination) !important;
+}
+
+.untreated-color {
+    background-color: var(--row-background) !important;
+    border-left: 4px solid var(--treatment-untreated) !important;
+}
+
+.follow-up-color {
+    background-color: var(--row-background) !important;
+    border-left: 4px solid var(--treatment-follow-up) !important;
+}
+
+/* 行のスタイル */
+.observation-row.untreated {
+    background-color: var(--row-background);
+    border-left: 4px solid var(--treatment-untreated);
+}
+
+.observation-row.treated {
+    background-color: var(--row-treated-background);
+    opacity: var(--row-treated-opacity);
+    border-left: 4px solid var(--treatment-treated);
+}
+
+.observation-row.re-examination {
+    background-color: var(--row-background);
+    border-left: 4px solid var(--treatment-re-examination);
+}
+
+.observation-row.follow-up {
+    background-color: var(--row-background);
+    border-left: 4px solid var(--treatment-follow-up);
+}
+
+.observation-row.new-observation {
+    background-color: var(--row-background) !important;
+    border-left: 4px solid var(--treatment-new) !important;
+}
+
+.observation-row:hover {
+    background-color: var(--row-hover);
+    transition: background 0.2s;
+}
+
+.observation-row.treated:hover {
+    background-color: #dee2e6;
+    opacity: 0.9;
+}
+
+.observation-row.treated td {
+    color: #6c757d;
+}
+
+.observation-row.treated .cow-link {
+    color: #6c757d;
+}
+
+.observation-row.treated .cow-link:hover {
+    color: #495057;
+} 

@@ -1,0 +1,88 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}餌観察記録詳細 - 牛の治療履歴管理システム{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'cattle/css/feeding_observation_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">餌観察記録詳細</h2>
+    </div>
+
+    <!-- 観察情報 -->
+    <div class="detail-grid">
+        <div class="info-card">
+            <h3>観察情報</h3>
+            <div class="info-row">
+                <span class="info-label">観察日時:</span>
+                <span class="info-value">{{ observation.observed_at|date:"Y年m月d日 H:i" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">対象牛:</span>
+                <span class="info-value">
+                    <a href="{% url 'cattle:cow_detail' observation.cow.id %}" class="cow-link">
+                        {{ observation.cow.cow_number|slice:"-5:" }}
+                    </a>
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">牛舎番号:</span>
+                <span class="info-value">{{ observation.cow.shed_code }}</span>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h3>観察結果</h3>
+            <div class="info-row">
+                <span class="info-label">食欲:</span>
+                <span class="info-value">
+                    <span class="appetite-badge appetite-{{ observation.appetite|default:'none' }}">
+                        {% if observation.appetite == '○' %}○（良好）
+                        {% elif observation.appetite == '△' %}△（普通）
+                        {% elif observation.appetite == '×' %}×（不良）
+                        {% else %}-（記録なし）{% endif %}
+                    </span>
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">観察者:</span>
+                <span class="info-value">{{ observation.observer.username }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 症状・異常 -->
+    {% if observation.symptoms %}
+    <div class="symptoms-section">
+        <h3>症状・異常</h3>
+        <div class="symptoms-content">
+            {{ observation.symptoms|linebreaks }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 備考 -->
+    {% if observation.memo %}
+    <div class="memo-section">
+        <h3>備考</h3>
+        <div class="memo-content">
+            {{ observation.memo|linebreaks }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- アクションボタン -->
+    <div class="detail-actions">
+        <a href="{% url 'cattle:feeding_observation_edit' observation.id %}" class="btn btn-primary">編集</a>
+        <a href="{% url 'cattle:cow_detail' observation.cow.id %}" class="btn btn-secondary">牛の詳細</a>
+        <a href="{% url 'cattle:feeding_observation_list' %}" class="btn btn-secondary">一覧に戻る</a>
+        <a href="{% url 'cattle:feeding_observation_delete' observation.id %}" class="btn btn-danger">
+            <i class="fas fa-trash"></i> 削除
+        </a>
+    </div>
+</div>
+{% endblock %} 

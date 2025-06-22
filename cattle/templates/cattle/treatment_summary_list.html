@@ -1,0 +1,278 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+{% load cattle_extras %}
+
+{% block title %}治療管理 - {{ current_date_str }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'cattle/css/treatment_colors.css' %}">
+<link rel="stylesheet" href="{% static 'cattle/css/treatment_summary_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">治療管理</h2>
+        <p class="card-subtitle text-muted mb-0">治療担当者用画面</p>
+    </div>
+
+    <!-- 日付表示 -->
+    <div class="date-navigation mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="?date={{ prev_date|date:'Y-m-d' }}{% if show_treated %}&show_treated=true{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.shed %}&shed={{ request.GET.shed }}{% endif %}" class="btn btn-outline-secondary">
+                <i class="fas fa-chevron-left"></i> {{ prev_date|date:'m月d日' }}
+            </a>
+            <div class="current-date">
+                <h3 class="mb-0">{{ current_date_str }}</h3>
+                {% if is_today %}
+                    <small class="text-success">今日</small>
+                {% endif %}
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'cattle:feeding_observation_list' %}?date={{ current_date|date:'Y-m-d' }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-list me-1"></i>餌観察記録一覧
+                </a>
+                <a href="?date={{ next_date|date:'Y-m-d' }}{% if show_treated %}&show_treated=true{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.shed %}&shed={{ request.GET.shed }}{% endif %}" class="btn btn-outline-secondary">
+                    {{ next_date|date:'m月d日' }} <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 治療状況の凡例 -->
+    <div class="treatment-legend mb-3">
+        <div class="legend-item">
+            <div class="legend-color new-observation-color"></div>
+            <span>新規登録</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color re-examination-color"></div>
+            <span>再診</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color untreated-color"></div>
+            <span>自己治療</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color follow-up-color"></div>
+            <span>経過観察</span>
+        </div>
+    </div>
+
+    <!-- 治療対象一覧（テーブル） -->
+    <div class="observation-table">
+        {% if observations %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>牛舎番号</th>
+                            <th>導入月</th>
+                            <th>導入元地域</th>
+                            <th>牛番号</th>
+                            <th>餌喰い</th>
+                            <th>症状・異常</th>
+                            <th>治療状況</th>
+                            <th>前回治療</th>
+                            <th>アクション</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for observation in observations %}
+                        <tr class="observation-row 
+                            {% if observation.treatment_status == 're_examination' %}re-examination
+                            {% elif observation.treatment_status == 'self_treatment' %}untreated
+                            {% elif observation.treatment_status == 'follow_up' %}follow-up
+                            {% elif observation.treatment_status == 'untreated' %}untreated
+                            {% else %}treated{% endif %}" 
+                            style="cursor:pointer;">
+                            <td>{{ observation.cow.shed_code }}</td>
+                            <td>{{ observation.cow|intake_month }}</td>
+                            <td>{{ observation.cow.origin_region|region_short }}</td>
+                            <td>
+                                <a href="{% url 'cattle:cow_detail' observation.cow.id %}" class="cow-link" onclick="event.stopPropagation();">
+                                    {{ observation.cow.cow_number|slice:"-5:" }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="appetite-badge appetite-{{ observation.appetite|default:'none' }}">
+                                    {% if observation.appetite == '○' %}○
+                                    {% elif observation.appetite == '△' %}△
+                                    {% elif observation.appetite == '×' %}×
+                                    {% else %}-{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% if observation.symptoms %}
+                                    {{ observation.symptoms|truncatechars:50 }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if observation.treatment_status == 'untreated' %}
+                                    <span class="treatment-badge treatment-none">
+                                        <i class="fas fa-circle"></i> 未治療
+                                    </span>
+                                {% elif observation.treatment_status == 're_examination' %}
+                                    <span class="treatment-badge treatment-treated">
+                                        <i class="fas fa-stethoscope"></i> 再診
+                                    </span>
+                                {% elif observation.treatment_status == 'self_treatment' %}
+                                    <span class="treatment-badge treatment-treated">
+                                        <i class="fas fa-user-md"></i> 自己治療
+                                    </span>
+                                {% elif observation.treatment_status == 'follow_up' %}
+                                    <span class="treatment-badge treatment-treated">
+                                        <i class="fas fa-eye"></i> 経過観察
+                                    </span>
+                                {% else %}
+                                    <span class="treatment-badge treatment-treated">
+                                        <i class="fas fa-check-circle"></i> 治療済み
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% with latest_treatment=observation.cow.treatment_set.first %}
+                                {% if latest_treatment %}
+                                    <div class="small">
+                                        <div class="text-muted">{{ latest_treatment.treatment_date|date:"m/d" }}</div>
+                                        <div>{{ latest_treatment.diagnosis|truncatechars:30 }}</div>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted small">治療履歴なし</span>
+                                {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    {% if observation.treatment_status == 'untreated' %}
+                                        <a href="{% url 'cattle:treatment_result_create' observation.id %}" class="btn btn-primary" onclick="event.stopPropagation();">
+                                            <i class="fas fa-stethoscope me-1"></i>治療
+                                        </a>
+                                    {% else %}
+                                        <span class="btn btn-success disabled">
+                                            <i class="fas fa-check me-1"></i>治療済み
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <h5>治療対象の牛はいません</h5>
+                <p class="text-muted">すべての牛の治療が完了しているか、今日の餌観察記録がありません。</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- 統計カード -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_untreated }}</div>
+            <div class="stat-label">未治療</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_treated }}</div>
+            <div class="stat-label">治療済み</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ observations|length }}</div>
+            <div class="stat-label">治療対象</div>
+        </div>
+    </div>
+
+    <!-- 表示フィルターボタン -->
+    <div class="filter-container">
+        <div class="filter-buttons">
+            <a href="?date={{ current_date|date:'Y-m-d' }}&show_treated=false{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.shed %}&shed={{ request.GET.shed }}{% endif %}" 
+               class="filter-btn {% if not show_treated %}active{% endif %}">
+                未治療のみ
+            </a>
+            <a href="?date={{ current_date|date:'Y-m-d' }}&show_treated=true{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.shed %}&shed={{ request.GET.shed }}{% endif %}" 
+               class="filter-btn {% if show_treated %}active{% endif %}">
+                すべて表示
+            </a>
+        </div>
+    </div>
+
+    <!-- 検索・フィルター -->
+    <div class="search-filter-container">
+        <form method="get" class="search-form">
+            <div class="search-input-group">
+                <input type="text" name="search" value="{{ request.GET.search }}" 
+                       placeholder="牛番号、症状、メモで検索..." class="search-input">
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            
+            <div class="filter-group">
+                <select name="shed" class="shed-select">
+                    <option value="">すべての牛舎</option>
+                    {% for shed in sheds %}
+                    <option value="{{ shed }}" {% if request.GET.shed == shed %}selected{% endif %}>
+                        {{ shed }}号舎
+                    </option>
+                    {% endfor %}
+                </select>
+                
+                <!-- フィルター状態を保持 -->
+                {% if show_treated %}
+                <input type="hidden" name="show_treated" value="true">
+                {% else %}
+                <input type="hidden" name="show_treated" value="false">
+                {% endif %}
+                
+                <!-- 日付を保持 -->
+                <input type="hidden" name="date" value="{{ current_date|date:'Y-m-d' }}">
+                
+                <button type="submit" class="filter-btn">フィルター</button>
+                <a href="{% url 'cattle:treatment_summary_list' %}" class="reset-btn">リセット</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- ページネーション -->
+    {% if is_paginated %}
+    <nav aria-label="ページナビゲーション" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&date={{ current_date|date:'Y-m-d' }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.shed %}&shed={{ request.GET.shed }}{% endif %}{% if show_treated %}&show_treated=true{% else %}&show_treated=false{% endif %}">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&date={{ current_date|date:'Y-m-d' }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.shed %}&shed={{ request.GET.shed }}{% endif %}{% if show_treated %}&show_treated=true{% else %}&show_treated=false{% endif %}">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&date={{ current_date|date:'Y-m-d' }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.shed %}&shed={{ request.GET.shed }}{% endif %}{% if show_treated %}&show_treated=true{% else %}&show_treated=false{% endif %}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&date={{ current_date|date:'Y-m-d' }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.shed %}&shed={{ request.GET.shed }}{% endif %}{% if show_treated %}&show_treated=true{% else %}&show_treated=false{% endif %}">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %} 

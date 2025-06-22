@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}CowTrack モバイル{% endblock %}</title>
+    
+    <!-- モバイル最適化CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .mobile-container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+        
+        .mobile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .mobile-header h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .mobile-nav {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0.5rem;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .mobile-nav a {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin: 0 0.25rem;
+            background: #f8f9fa;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .mobile-nav a:hover,
+        .mobile-nav a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .mobile-content {
+            padding: 1rem;
+        }
+        
+        .mobile-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .mobile-btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin: 0.25rem 0;
+        }
+        
+        .mobile-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+        
+        .mobile-btn.secondary {
+            background: #6c757d;
+        }
+        
+        .mobile-btn.success {
+            background: #28a745;
+        }
+        
+        .mobile-btn.danger {
+            background: #dc3545;
+        }
+        
+        .mobile-form {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .mobile-form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .mobile-form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .mobile-form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+        
+        .mobile-form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .mobile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .mobile-stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .mobile-stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.25rem;
+        }
+        
+        .mobile-stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .mobile-list {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .mobile-list-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .mobile-list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .mobile-search {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .mobile-search input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 480px) {
+            .mobile-content {
+                padding: 0.5rem;
+            }
+            
+            .mobile-card {
+                padding: 0.75rem;
+            }
+            
+            .mobile-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="mobile-container">
+        <header class="mobile-header">
+            <h1>🐄 CowTrack</h1>
+        </header>
+        
+        <nav class="mobile-nav">
+            <a href="{% url 'cattle:mobile_dashboard' %}">ダッシュボード</a>
+            <a href="{% url 'cattle:mobile_cow_list' %}">牛一覧</a>
+            <a href="{% url 'cattle:mobile_treatment_list' %}">治療履歴</a>
+            <a href="{% url 'cattle:mobile_treatment_create' %}">治療登録</a>
+            <a href="{% url 'cattle:mobile_feeding_observation_list' %}">餌観察</a>
+            <a href="{% url 'cattle:mobile_feeding_observation_create' %}">観察登録</a>
+        </nav>
+        
+        <main class="mobile-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

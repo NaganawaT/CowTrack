@@ -1,0 +1,386 @@
+/* 餌観察記録一覧ページのスタイル */
+
+/* 検索・フィルター */
+.search-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.search-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    align-items: end;
+}
+
+.observation-table {
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+.observation-table .table th {
+    background: var(--accent);
+    color: var(--white);
+}
+
+.observation-table .table th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.observation-table .table th:last-child {
+    border-top-right-radius: 8px;
+}
+
+/* テーブル列幅の調整 */
+.observation-table .table th:nth-child(1), /* 牛舎番号 */
+.observation-table .table td:nth-child(1) {
+    width: 80px;
+    text-align: center;
+}
+
+.observation-table .table th:nth-child(2), /* 導入月 */
+.observation-table .table td:nth-child(2) {
+    width: 60px;
+    text-align: center;
+}
+
+.observation-table .table th:nth-child(3), /* 導入元地域 */
+.observation-table .table td:nth-child(3) {
+    width: 60px;
+    text-align: center;
+}
+
+.observation-table .table th:nth-child(4), /* 牛番号 */
+.observation-table .table td:nth-child(4) {
+    width: 80px;
+    text-align: center;
+}
+
+.observation-table .table th:nth-child(5), /* 餌喰い */
+.observation-table .table td:nth-child(5) {
+    width: 80px;
+    text-align: center;
+}
+
+.observation-table .table th:nth-child(6), /* 症状・異常 */
+.observation-table .table td:nth-child(6) {
+    min-width: 200px;
+}
+
+.observation-table .table th:nth-child(7), /* 治療状況 */
+.observation-table .table td:nth-child(7) {
+    width: 100px;
+    text-align: center;
+}
+
+.observation-table .table th:nth-child(8), /* アクション */
+.observation-table .table td:nth-child(8) {
+    width: 120px;
+    text-align: center;
+}
+
+/* 牛リンク */
+.cow-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.cow-link:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* 食欲バッジ */
+.appetite-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+.appetite-○ {
+    background: #d4edda;
+    color: #155724;
+}
+
+.appetite-△ {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.appetite-× {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.appetite-none {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+/* 治療バッジ */
+.treatment-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-align: center;
+    min-width: 60px;
+}
+
+.treatment-treated {
+    background: #d4edda;
+    color: #155724;
+}
+
+.treatment-treated i {
+    margin-right: 0.25rem;
+}
+
+.treatment-none {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.treatment-none i {
+    margin-right: 0.25rem;
+}
+
+/* アクションボタン */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.action-buttons .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    min-height: 32px;
+}
+
+/* 統計カード */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--gray);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* 治療状況の凡例 */
+.treatment-legend {
+    display: flex;
+    gap: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid #ddd;
+    border-left: none;
+}
+
+/* 自動登録された記録のスタイル */
+.auto-registered {
+    background-color: #e3f2fd;
+    border-left: 3px solid #2196f3;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.auto-registered i {
+    font-size: 0.8em;
+}
+
+/* 経過観察用のスタイル */
+.observation-row.follow-up {
+    background-color: #fff;
+    border-left: 4px solid #007bff;
+}
+
+.observation-row.follow-up:hover {
+    background-color: #f8f9fa;
+}
+
+/* 新規登録用のスタイル */
+.observation-row.new-observation {
+    background-color: #fff !important;
+    border-left: 4px solid #20c997 !important;
+}
+
+.observation-row.new-observation:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* 再診用のスタイル */
+.observation-row.re-examination {
+    background-color: #fff;
+    border-left: 4px solid #dc3545;
+}
+
+.observation-row.re-examination:hover {
+    background-color: #f8f9fa;
+}
+
+/* スマホ対応 */
+@media (max-width: 768px) {
+    .search-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .search-form {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .search-form .form-group {
+        margin-bottom: 0;
+    }
+    
+    .search-form .btn {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 0.85rem;
+        min-height: 36px;
+    }
+    
+    .appetite-badge {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.4rem;
+    }
+    
+    /* スマホでのテーブル列幅調整 */
+    .observation-table .table th:nth-child(1),
+    .observation-table .table td:nth-child(1),
+    .observation-table .table th:nth-child(2),
+    .observation-table .table td:nth-child(2),
+    .observation-table .table th:nth-child(3),
+    .observation-table .table td:nth-child(3),
+    .observation-table .table th:nth-child(4),
+    .observation-table .table td:nth-child(4),
+    .observation-table .table th:nth-child(5),
+    .observation-table .table td:nth-child(5) {
+        width: auto;
+        min-width: 50px;
+    }
+    
+    .observation-table .table th:nth-child(6),
+    .observation-table .table td:nth-child(6) {
+        min-width: 150px;
+    }
+    
+    .observation-table .table th:nth-child(7),
+    .observation-table .table td:nth-child(7) {
+        width: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-section {
+        padding: 0.75rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .stat-card {
+        padding: 0.75rem;
+    }
+    
+    .stat-number {
+        font-size: 1.25rem;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+    }
+}
+
+.observation-row:hover {
+    background: #f8f9fa;
+    transition: background 0.2s;
+} 

@@ -1,0 +1,86 @@
+{% extends 'cattle/mobile/base.html' %}
+
+{% block title %}ダッシュボード - CowTrack モバイル{% endblock %}
+
+{% block content %}
+<div class="mobile-stats">
+    <div class="mobile-stat-card">
+        <div class="mobile-stat-number">{{ total_cows }}</div>
+        <div class="mobile-stat-label">総牛数</div>
+    </div>
+    <div class="mobile-stat-card">
+        <div class="mobile-stat-number">{{ active_cows }}</div>
+        <div class="mobile-stat-label">活動中</div>
+    </div>
+    <div class="mobile-stat-card">
+        <div class="mobile-stat-number">{{ today_treatments }}</div>
+        <div class="mobile-stat-label">今日の治療</div>
+    </div>
+    <div class="mobile-stat-card">
+        <div class="mobile-stat-number">{{ week_treatments }}</div>
+        <div class="mobile-stat-label">週間治療</div>
+    </div>
+</div>
+
+<div class="mobile-card">
+    <h3>最近の治療履歴</h3>
+    {% if recent_treatments %}
+        <div class="mobile-list">
+            {% for treatment in recent_treatments %}
+            <div class="mobile-list-item">
+                <div>
+                    <strong>{{ treatment.cow.cow_number|slice:"-5:" }}</strong>
+                    <br>
+                    <small>{{ treatment.treatment_date|date:"m/d H:i" }}</small>
+                </div>
+                <div>
+                    <small>{{ treatment.diagnosis|default:"-" }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>最近の治療履歴はありません</p>
+    {% endif %}
+</div>
+
+<div class="mobile-card">
+    <h3>最近登録された牛</h3>
+    {% if recent_cows %}
+        <div class="mobile-list">
+            {% for cow in recent_cows %}
+            <div class="mobile-list-item">
+                <div>
+                    <strong>{{ cow.cow_number|slice:"-5:" }}</strong>
+                    <br>
+                    <small>{{ cow.shed_code }}｜{{ cow.intake_date|date:"n" }}{{ cow.origin_region|region_short }}</small>
+                </div>
+                <div>
+                    <span class="mobile-btn secondary" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                        {{ cow.status }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>最近登録された牛はありません</p>
+    {% endif %}
+</div>
+
+<div class="mobile-card">
+    <h3>クイックアクション</h3>
+    <a href="{% url 'cattle:mobile_feeding_observation_create' %}" class="mobile-btn success">
+        🍽️ 餌観察記録を登録
+    </a>
+    <a href="{% url 'cattle:mobile_treatment_create' %}" class="mobile-btn success">
+        💊 治療履歴を登録
+    </a>
+    <a href="{% url 'cattle:mobile_cow_list' %}" class="mobile-btn">
+        🐄 牛一覧を表示
+    </a>
+    <a href="{% url 'cattle:mobile_treatment_list' %}" class="mobile-btn">
+        💊 治療履歴を確認
+    </a>
+</div>
+{% endblock %} 

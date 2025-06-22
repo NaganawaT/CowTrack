@@ -1,0 +1,413 @@
+/* 牛詳細画面固有のスタイル */
+
+/* 牛個体識別番号の表示 */
+.cow-number-display {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.cow-number-emphasis {
+    background: var(--accent);
+    color: var(--white);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+/* 詳細情報グリッド */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.info-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--primary);
+}
+
+.info-card h3 {
+    color: var(--primary);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.info-value {
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+/* 治療履歴 */
+.treatment-history {
+    margin-top: 2rem;
+}
+
+.treatment-history h3 {
+    color: var(--text-dark);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-header h3 {
+    margin: 0;
+    color: var(--text-dark);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.section-header .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.treatment-item {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.3s ease;
+}
+
+.treatment-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.treatment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.treatment-date {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.treatment-type {
+    background: var(--accent);
+    color: var(--white);
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.treatment-description {
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+
+.medicine-list {
+    margin-top: 0.5rem;
+}
+
+.medicine-item {
+    background: var(--light-gray);
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+/* 餌観察記録 */
+.feeding-observation-history {
+    margin-top: 2rem;
+}
+
+.observation-item {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.3s ease;
+}
+
+.observation-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.observation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.observation-date {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.appetite-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    min-width: 60px;
+    text-align: center;
+}
+
+.appetite-○ {
+    background: #d4edda;
+    color: #155724;
+}
+
+.appetite-△ {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.appetite-× {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.appetite-none {
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+.observation-description {
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+
+/* アクションボタン */
+.detail-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.detail-actions .btn {
+    min-width: 120px;
+}
+
+/* ステータス表示 */
+.status-display {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-active {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+.status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* 牛の画像 */
+.cow-image {
+    max-width: 200px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+/* スマホ対応 */
+@media (max-width: 768px) {
+    .detail-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-card {
+        padding: 1rem;
+    }
+    
+    .info-card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+        padding: 0.75rem 0;
+    }
+    
+    .info-label {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+    
+    .info-value {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .section-header .btn {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+    
+    .treatment-history,
+    .feeding-observation-history {
+        margin-top: 1.5rem;
+    }
+    
+    .treatment-history h3,
+    .feeding-observation-history h3 {
+        font-size: 1rem;
+    }
+    
+    .treatment-item,
+    .observation-item {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .treatment-header,
+    .observation-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .treatment-date,
+    .observation-date {
+        font-size: 0.9rem;
+    }
+    
+    .treatment-type {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+    }
+    
+    .appetite-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+        min-width: 50px;
+    }
+    
+    .treatment-description,
+    .observation-description {
+        font-size: 0.9rem;
+    }
+    
+    .detail-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+    }
+    
+    .detail-actions .btn {
+        width: 100%;
+        max-width: 300px;
+        padding: 0.75rem;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+    
+    .status-display {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+    }
+    
+    .cow-image {
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .info-card {
+        padding: 0.75rem;
+    }
+    
+    .info-card h3 {
+        font-size: 0.95rem;
+    }
+    
+    .info-row {
+        padding: 0.5rem 0;
+    }
+    
+    .info-label {
+        font-size: 0.85rem;
+    }
+    
+    .info-value {
+        font-size: 0.95rem;
+    }
+    
+    .treatment-item,
+    .observation-item {
+        padding: 0.5rem;
+    }
+    
+    .treatment-description,
+    .observation-description {
+        font-size: 0.85rem;
+    }
+    
+    .cow-image {
+        max-width: 120px;
+    }
+} 
