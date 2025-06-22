@@ -17,6 +17,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
 from django.http import HttpResponse, JsonResponse
+import logging
+
+logger = logging.getLogger(__name__)
 
 def redirect_to_cow_list(request):
     """トップページを牛一覧にリダイレクト"""
@@ -36,7 +39,8 @@ def mobile_redirect(request):
 
 def health_check(request):
     """ヘルスチェック用のエンドポイント"""
-    return JsonResponse({"status": "OK"}, status=200)
+    logger.info(f"Health check accessed from {request.META.get('REMOTE_ADDR', 'unknown')}")
+    return JsonResponse({"status": "OK", "message": "CowTrack is running"}, status=200)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
