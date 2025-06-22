@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -82,12 +81,16 @@ DATABASES = {
     }
 }
 
+# Railway用の設定（本番環境のみ）
+try:
+    import dj_database_url
+    DJ_DATABASE_URL_AVAILABLE = True
+except ImportError:
+    DJ_DATABASE_URL_AVAILABLE = False
+
 # Railway用の設定
-if 'DATABASE_URL' in os.environ:
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+# if 'DATABASE_URL' in os.environ and DJ_DATABASE_URL_AVAILABLE:
+#     DATABASES['default'] = dj_database_url.parse(os.environ['DATABASE_URL'])
 
 # 本番環境のホスト設定
 if not DEBUG:
