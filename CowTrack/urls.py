@@ -39,8 +39,12 @@ def mobile_redirect(request):
 
 def health_check(request):
     """ヘルスチェック用のエンドポイント"""
-    logger.info(f"Health check accessed from {request.META.get('REMOTE_ADDR', 'unknown')}")
-    return JsonResponse({"status": "OK", "message": "CowTrack is running"}, status=200)
+    try:
+        logger.info(f"Health check accessed from {request.META.get('REMOTE_ADDR', 'unknown')}")
+        return JsonResponse({"status": "OK", "message": "CowTrack is running"}, status=200)
+    except Exception as e:
+        logger.error(f"Health check error: {e}")
+        return JsonResponse({"status": "ERROR", "message": str(e)}, status=500)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

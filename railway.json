@@ -4,9 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "source /opt/venv/bin/activate && python manage.py migrate && gunicorn CowTrack.wsgi:application --bind 0.0.0.0:$PORT",
-    "healthcheckPath": "/health/",
-    "healthcheckTimeout": 300,
+    "startCommand": "source /opt/venv/bin/activate && python manage.py migrate && gunicorn CowTrack.wsgi:application --bind 0.0.0.0:$PORT --log-level debug --access-logfile - --error-logfile -",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
