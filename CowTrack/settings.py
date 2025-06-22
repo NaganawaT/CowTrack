@@ -26,6 +26,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'hu1$-bj&8ftbz5w^2x5zo!qr_!0*(u^m(kh-3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
+# 本番環境の検出（RailwayではPORT環境変数が設定される）
+IS_PRODUCTION = 'PORT' in os.environ or os.environ.get('RAILWAY_ENVIRONMENT') == 'production'
+
 # ALLOWED_HOSTS設定
 ALLOWED_HOSTS = [
     'localhost',
@@ -34,16 +37,17 @@ ALLOWED_HOSTS = [
     '.ngrok.io',
     '.ngrok-free.app',
     '.loca.lt',
-    '.railway.app',
-    'web-production-fdf0d.up.railway.app',
 ]
 
-# 本番環境のホスト設定
-if not DEBUG:
+# Railway/本番環境のホスト設定
+if IS_PRODUCTION or not DEBUG:
     ALLOWED_HOSTS.extend([
+        '.railway.app',
+        'web-production-fdf0d.up.railway.app',
         '.render.com',
         '.herokuapp.com',
         '.pythonanywhere.com',
+        '*',  # 一時的にすべてのホストを許可
     ])
 
 
@@ -187,7 +191,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # 本番環境でのセキュリティ設定
-if not DEBUG:
+if IS_PRODUCTION or not DEBUG:
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
@@ -198,3 +202,9 @@ else:
     # 開発環境でのCSRF検証を緩和
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
+
+# Railway用の環境変数設定
+if IS_PRODUCTION:
+    # Railwayの環境変数を設定
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CowTrack.settings')
+    os.environ.setdefault('DEBUG', 'False')
