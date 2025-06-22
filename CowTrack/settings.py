@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from pathlib import Path
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,10 +21,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'hu1$-bj&8ftbz5w^2x5zo!qr_!0*(u^m(kh-3fi=bczsb$!(&t'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'hu1$-bj&8ftbz5w^2x5zo!qr_!0*(u^m(kh-3fi=bczsb$!(&t')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.2.102', '.ngrok.io', '.ngrok-free.app', '.loca.lt']
 
@@ -74,23 +75,27 @@ WSGI_APPLICATION = 'CowTrack.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
 # Railway用の設定（本番環境のみ）
-try:
-    import dj_database_url
-    DJ_DATABASE_URL_AVAILABLE = True
-except ImportError:
-    DJ_DATABASE_URL_AVAILABLE = False
-
-# Railway用の設定
-# if 'DATABASE_URL' in os.environ and DJ_DATABASE_URL_AVAILABLE:
-#     DATABASES['default'] = dj_database_url.parse(os.environ['DATABASE_URL'])
+if 'DATABASE_URL' in os.environ:
+    try:
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.parse(os.environ['DATABASE_URL'])
+        }
+    except ImportError:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            }
+        }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 # 本番環境のホスト設定
 if not DEBUG:
@@ -160,9 +165,18 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.ngrok-free.app',
     'https://*.ngrok.io',
     'https://*.loca.lt',
+    'https://*.railway.app',
 ]
 
-# 開発環境でのCSRF検証を緩和
-if DEBUG:
+# 本番環境でのセキュリティ設定
+if not DEBUG:
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+else:
+    # 開発環境でのCSRF検証を緩和
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
