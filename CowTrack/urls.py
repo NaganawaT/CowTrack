@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 def redirect_to_cow_list(request):
     """トップページを牛一覧にリダイレクト"""
@@ -34,8 +34,13 @@ def mobile_redirect(request):
     # else:
     #     return redirect('cattle:cow_list')
 
+def health_check(request):
+    """ヘルスチェック用のエンドポイント"""
+    return JsonResponse({"status": "OK"}, status=200)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('health/', health_check, name='health_check'),
     path('', mobile_redirect, name='home'),
     path('', include('cattle.urls')),
 ]
