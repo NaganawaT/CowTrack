@@ -29,26 +29,30 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 # 本番環境の検出（RailwayではPORT環境変数が設定される）
 IS_PRODUCTION = 'PORT' in os.environ or os.environ.get('RAILWAY_ENVIRONMENT') == 'production'
 
-# ALLOWED_HOSTS設定
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1', 
-    '192.168.2.102',
-    '.ngrok.io',
-    '.ngrok-free.app',
-    '.loca.lt',
-]
+# ALLOWED_HOSTS設定 - より確実な設定
+ALLOWED_HOSTS = ['*']  # 一時的にすべてのホストを許可
+
+# 開発環境の場合のみ制限
+if DEBUG and not IS_PRODUCTION:
+    ALLOWED_HOSTS = [
+        'localhost',
+        '127.0.0.1', 
+        '192.168.2.102',
+        '.ngrok.io',
+        '.ngrok-free.app',
+        '.loca.lt',
+    ]
 
 # Railway/本番環境のホスト設定
-if IS_PRODUCTION or not DEBUG:
-    ALLOWED_HOSTS.extend([
-        '.railway.app',
-        'web-production-fdf0d.up.railway.app',
-        '.render.com',
-        '.herokuapp.com',
-        '.pythonanywhere.com',
-        '*',  # 一時的にすべてのホストを許可
-    ])
+# if IS_PRODUCTION or not DEBUG:
+#     ALLOWED_HOSTS.extend([
+#         '.railway.app',
+#         'web-production-fdf0d.up.railway.app',
+#         '.render.com',
+#         '.herokuapp.com',
+#         '.pythonanywhere.com',
+#         '*',  # 一時的にすべてのホストを許可
+#     ])
 
 
 # Application definition
@@ -208,3 +212,8 @@ if IS_PRODUCTION:
     # Railwayの環境変数を設定
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CowTrack.settings')
     os.environ.setdefault('DEBUG', 'False')
+    print(f"Production environment detected. DEBUG={DEBUG}, IS_PRODUCTION={IS_PRODUCTION}")
+    print(f"ALLOWED_HOSTS={ALLOWED_HOSTS}")
+else:
+    print(f"Development environment. DEBUG={DEBUG}, IS_PRODUCTION={IS_PRODUCTION}")
+    print(f"ALLOWED_HOSTS={ALLOWED_HOSTS}")
