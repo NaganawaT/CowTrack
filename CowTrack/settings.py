@@ -26,7 +26,25 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'hu1$-bj&8ftbz5w^2x5zo!qr_!0*(u^m(kh-3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.2.102', '.ngrok.io', '.ngrok-free.app', '.loca.lt']
+# ALLOWED_HOSTS設定
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1', 
+    '192.168.2.102',
+    '.ngrok.io',
+    '.ngrok-free.app',
+    '.loca.lt',
+    '.railway.app',
+    'web-production-fdf0d.up.railway.app',
+]
+
+# 本番環境のホスト設定
+if not DEBUG:
+    ALLOWED_HOSTS.extend([
+        '.render.com',
+        '.herokuapp.com',
+        '.pythonanywhere.com',
+    ])
 
 
 # Application definition
@@ -98,15 +116,15 @@ else:
     }
 
 # 本番環境のホスト設定
-if not DEBUG:
-    ALLOWED_HOSTS = [
-        'localhost',
-        '127.0.0.1',
-        '.railway.app',
-        '.render.com',
-        '.herokuapp.com',
-        '.pythonanywhere.com',
-    ]
+# if not DEBUG:
+#     ALLOWED_HOSTS = [
+#         'localhost',
+#         '127.0.0.1',
+#         '.railway.app',
+#         '.render.com',
+#         '.herokuapp.com',
+#         '.pythonanywhere.com',
+#     ]
 
 
 # Password validation
