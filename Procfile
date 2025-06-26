@@ -1,1 +1,1 @@
-web: gunicorn CowTrack.wsgi:application --bind 0.0.0.0:$PORT 
+web: gunicorn CowTrack.wsgi:application --bind 0.0.0.0:$PORT --log-level debug --access-logfile - --error-logfile - 
