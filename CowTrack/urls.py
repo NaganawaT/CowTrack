@@ -17,6 +17,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
 from django.http import HttpResponse, JsonResponse
+from django.conf import settings
+from django.conf.urls.static import static
 import logging
 
 logger = logging.getLogger(__name__)
@@ -35,3 +37,7 @@ urlpatterns = [
     path('health/', health_check, name='health_check'),
     path('', include('cattle.urls')),
 ]
+
+# 本番環境での静的ファイル配信
+if not settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

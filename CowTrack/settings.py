@@ -180,6 +180,15 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# 本番環境での静的ファイル配信設定
+if IS_PRODUCTION or not DEBUG:
+    # Whitenoiseを使用して静的ファイルを配信
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # 静的ファイルのキャッシュ設定
+    WHITENOISE_MAX_AGE = 31536000  # 1年
+    WHITENOISE_USE_FINDERS = True
+
 # カスタムユーザーモデルの指定
 AUTH_USER_MODEL = 'cattle.User'
 
