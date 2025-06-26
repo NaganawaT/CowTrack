@@ -21,22 +21,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def redirect_to_cow_list(request):
-    """トップページを牛一覧にリダイレクト"""
-    return redirect('cattle:cow_list')
-
-def mobile_redirect(request):
-    """モバイル版へのリダイレクト（一時的に無効化）"""
-    # 一時的にPC版にリダイレクト
-    return redirect('cattle:cow_list')
-    
-    # 元のコード（コメントアウト）
-    # user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
-    # if any(device in user_agent for device in ['mobile', 'android', 'iphone', 'ipad']):
-    #     return redirect('cattle:mobile_dashboard')
-    # else:
-    #     return redirect('cattle:cow_list')
-
 def health_check(request):
     """ヘルスチェック用のエンドポイント"""
     try:
@@ -49,6 +33,5 @@ def health_check(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('health/', health_check, name='health_check'),
-    path('', mobile_redirect, name='home'),
     path('', include('cattle.urls')),
 ]
