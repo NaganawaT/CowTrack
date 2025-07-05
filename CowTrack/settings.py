@@ -186,12 +186,13 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.ngrok.io',
     'https://*.loca.lt',
     'https://*.railway.app',
+    'https://cowtrack.up.railway.app',
 ]
 
 # 本番環境でのセキュリティ設定
 if IS_PRODUCTION or not DEBUG:
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = False  # 一時的にFalseに変更
+    SESSION_COOKIE_SECURE = False  # 一時的にFalseに変更
     # SECURE_SSL_REDIRECT = True  # ヘルスチェックのために一時的に無効化
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
