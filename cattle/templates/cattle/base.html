@@ -7,6 +7,9 @@
     
     {% load static %}
     
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <!-- ベースCSS -->
     <link rel="stylesheet" href="{% static 'cattle/css/base.css' %}">
     
@@ -17,24 +20,31 @@
     <!-- ヘッダー -->
     <header class="header">
         <div class="container">
-            <h1>牛の治療履歴管理システム</h1>
+            <div class="header-content">
+                <h1>牛の治療履歴管理システム</h1>
+                <button class="hamburger-menu" id="hamburger-menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
         </div>
     </header>
     
     <!-- ナビゲーション -->
-    <nav class="nav">
+    <nav class="nav" id="nav">
         <div class="container">
             <ul class="nav-list">
-                <li><a href="{% url 'cattle:dashboard' %}">ダッシュボード</a></li>
-                <li><a href="{% url 'cattle:cow_list' %}">牛一覧</a></li>
-                <li><a href="{% url 'cattle:cow_create' %}">牛登録</a></li>
-                <li><a href="{% url 'cattle:treatment_list' %}">治療履歴</a></li>
-                <li><a href="{% url 'cattle:treatment_create' %}">治療登録</a></li>
-                <li><a href="{% url 'cattle:treatment_summary_list' %}">治療一覧</a></li>
-                <li><a href="{% url 'cattle:feeding_observation_list' %}">餌観察</a></li>
-                <li><a href="{% url 'cattle:feeding_observation_create' %}">観察登録</a></li>
-                <li><a href="{% url 'cattle:daily_veterinarian_list' %}">獣医師設定</a></li>
-                <li><a href="{% url 'admin:index' %}">管理画面</a></li>
+                <li><a href="{% url 'cattle:dashboard' %}"><i class="fas fa-tachometer-alt"></i> ダッシュボード</a></li>
+                <li><a href="{% url 'cattle:cow_list' %}"><i class="fas fa-list"></i> 牛一覧</a></li>
+                <li><a href="{% url 'cattle:cow_create' %}"><i class="fas fa-plus"></i> 牛登録</a></li>
+                <li><a href="{% url 'cattle:treatment_list' %}"><i class="fas fa-notes-medical"></i> 治療履歴</a></li>
+                <li><a href="{% url 'cattle:treatment_create' %}"><i class="fas fa-stethoscope"></i> 治療登録</a></li>
+                <li><a href="{% url 'cattle:treatment_summary_list' %}"><i class="fas fa-clipboard-list"></i> 治療一覧</a></li>
+                <li><a href="{% url 'cattle:feeding_observation_list' %}"><i class="fas fa-eye"></i> 餌観察</a></li>
+                <li><a href="{% url 'cattle:feeding_observation_create' %}"><i class="fas fa-edit"></i> 観察登録</a></li>
+                <li><a href="{% url 'cattle:daily_veterinarian_list' %}"><i class="fas fa-user-md"></i> 獣医師設定</a></li>
+                <li><a href="{% url 'admin:index' %}"><i class="fas fa-cog"></i> 管理画面</a></li>
             </ul>
         </div>
     </nav>
@@ -97,6 +107,36 @@
     </footer>
 
     <!-- JavaScript -->
+    <script>
+        // ハンバーガーメニューの制御
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.getElementById('hamburger-menu');
+            const nav = document.getElementById('nav');
+            
+            hamburger.addEventListener('click', function() {
+                hamburger.classList.toggle('active');
+                nav.classList.toggle('active');
+            });
+            
+            // メニュー項目をクリックした時にメニューを閉じる
+            const navLinks = document.querySelectorAll('.nav-list a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    hamburger.classList.remove('active');
+                    nav.classList.remove('active');
+                });
+            });
+            
+            // 画面外をクリックした時にメニューを閉じる
+            document.addEventListener('click', function(event) {
+                if (!hamburger.contains(event.target) && !nav.contains(event.target)) {
+                    hamburger.classList.remove('active');
+                    nav.classList.remove('active');
+                }
+            });
+        });
+    </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html> 

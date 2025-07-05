@@ -10,6 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+import pymysql
+# PyMySQLをMySQLdbとして使用（最上部で実行）
+try:
+    pymysql.install_as_MySQLdb()
+    print("PyMySQL successfully installed as MySQLdb")
+except Exception as e:
+    print(f"Error installing PyMySQL as MySQLdb: {e}")
+
 import os
 from pathlib import Path
 
@@ -101,27 +109,12 @@ WSGI_APPLICATION = 'CowTrack.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-# Railway用の設定（本番環境のみ）
-if 'DATABASE_URL' in os.environ:
-    try:
-        import dj_database_url
-        DATABASES = {
-            'default': dj_database_url.parse(os.environ['DATABASE_URL'])
-        }
-    except ImportError:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-            }
-        }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+}
 
 # 本番環境のホスト設定
 # if not DEBUG:
@@ -190,7 +183,7 @@ if IS_PRODUCTION or not DEBUG:
     WHITENOISE_USE_FINDERS = True
 
 # カスタムユーザーモデルの指定
-AUTH_USER_MODEL = 'cattle.User'
+# AUTH_USER_MODEL = 'cattle.User'
 
 # デフォルトの主キーフィールドタイプ
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

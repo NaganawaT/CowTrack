@@ -1,0 +1,64 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}ハンバーガーメニューテスト{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">ハンバーガーメニューテスト</h2>
+    </div>
+    
+    <div class="card-body">
+        <h3>確認手順</h3>
+        <ol>
+            <li>このページを開いた状態で、ブラウザの幅を768px以下に縮小してください</li>
+            <li>ヘッダー右側にハンバーガーメニューボタン（3本線）が表示されるはずです</li>
+            <li>ボタンをクリックすると、左側からナビゲーションメニューがスライドインします</li>
+            <li>メニュー項目をクリックすると、メニューが自動的に閉じます</li>
+        </ol>
+        
+        <h3>現在の画面幅</h3>
+        <p>現在の画面幅: <span id="screen-width"></span>px</p>
+        
+        <h3>デバッグ情報</h3>
+        <div id="debug-info">
+            <p>ハンバーガーメニューボタンの状態: <span id="hamburger-status">確認中...</span></p>
+            <p>ナビゲーションの状態: <span id="nav-status">確認中...</span></p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 画面幅を表示
+    function updateScreenWidth() {
+        document.getElementById('screen-width').textContent = window.innerWidth;
+    }
+    
+    updateScreenWidth();
+    window.addEventListener('resize', updateScreenWidth);
+    
+    // デバッグ情報を更新
+    function updateDebugInfo() {
+        const hamburger = document.getElementById('hamburger-menu');
+        const nav = document.getElementById('nav');
+        
+        if (hamburger) {
+            const isVisible = window.getComputedStyle(hamburger).display !== 'none';
+            document.getElementById('hamburger-status').textContent = 
+                isVisible ? '表示中' : '非表示';
+        }
+        
+        if (nav) {
+            const isActive = nav.classList.contains('active');
+            document.getElementById('nav-status').textContent = 
+                isActive ? 'アクティブ（開いている）' : '非アクティブ（閉じている）';
+        }
+    }
+    
+    updateDebugInfo();
+    setInterval(updateDebugInfo, 1000);
+});
+</script>
+{% endblock %} 

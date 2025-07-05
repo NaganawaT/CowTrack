@@ -16,6 +16,9 @@ urlpatterns = [
     # ダッシュボード
     path('', views.DashboardView.as_view(), name='dashboard'),
     
+    # テストページ
+    path('test-hamburger/', views.test_hamburger_view, name='test_hamburger'),
+    
     # 牛管理
     path('cows/', views.CowListView.as_view(), name='cow_list'),
     path('cows/create/', views.CowCreateView.as_view(), name='cow_create'),

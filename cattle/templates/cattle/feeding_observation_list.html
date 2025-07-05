@@ -171,7 +171,7 @@
                                             {{ observation.symptoms|truncatechars:50 }}
                                         </div>
                                     {% else %}
-                                        {{ observation.symptoms|truncatechars:50 }}
+                                    {{ observation.symptoms|truncatechars:50 }}
                                     {% endif %}
                                 {% else %}
                                     <span class="text-muted">-</span>
@@ -191,9 +191,9 @@
                                         <i class="fas fa-user-md"></i> 自己治療
                                     </span>
                                 {% elif observation.treatment_status == 'follow_up' %}
-                                    <span class="treatment-badge treatment-treated">
+                                            <span class="treatment-badge treatment-treated">
                                         <i class="fas fa-eye"></i> 経過観察
-                                    </span>
+                                            </span>
                                 {% else %}
                                     <span class="treatment-badge treatment-none">
                                         <i class="fas fa-circle"></i> 未治療

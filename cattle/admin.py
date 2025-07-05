@@ -5,13 +5,12 @@ from django.urls import path
 from django.contrib import messages
 import csv
 from datetime import datetime
-from .models import User, Veterinarian, Cow, Medicine, Treatment, TreatmentMedicine, FeedingObservation, MovementLog, FollowUpObservation, DailyVeterinarian, TreatmentResult
+from .models import Veterinarian, Cow, Medicine, Treatment, TreatmentMedicine, DailyVeterinarian, FeedingObservation, TreatmentResult, MovementLog, FollowUpObservation
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    list_display = ['email', 'role', 'is_active']
-    list_filter = ['role', 'is_active']
-    search_fields = ['email']
+# User関連のadmin登録は削除・コメントアウト
+# from .models import User
+# from django.contrib.auth.admin import UserAdmin
+# admin.site.register(User, UserAdmin)
 
 @admin.register(Veterinarian)
 class VeterinarianAdmin(admin.ModelAdmin):

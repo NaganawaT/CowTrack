@@ -1,25 +1,31 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 
 # Create your models here.
 
-class User(AbstractUser):
-    """ユーザーモデル"""
-    ROLE_CHOICES = [
-        ('餌担当', '餌担当'),
-        ('治療担当', '治療担当'),
-        ('事務', '事務'),
-        ('管理者', '管理者'),
-    ]
-    
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    email = models.EmailField(unique=True)
-    password_hash = models.CharField(max_length=50)
-    
-    def __str__(self):
-        return self.email
+# カスタムユーザーモデルを一時的に無効化
+# class User(AbstractUser):
+#     """ユーザーモデル"""
+#     ROLE_CHOICES = [
+#         ('餌担当', '餌担当'),
+#         ('治療担当', '治療担当'),
+#         ('事務', '事務'),
+#         ('管理者', '管理者'),
+#     ]
+#     
+#     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+#     email = models.EmailField(unique=True)
+#     
+#     def __str__(self):
+#         return self.email
+#     
+#     def get_full_name(self):
+#         return self.username
+#     
+#     def get_short_name(self):
+#         return self.username
 
 class Veterinarian(models.Model):
     """獣医師マスタ"""
@@ -245,4 +251,4 @@ class FollowUpObservation(models.Model):
     
     class Meta:
         verbose_name = '経過観察'
-        verbose_name_plural = '経過観察' 
+        verbose_name_plural = '経過観察'

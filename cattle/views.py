@@ -12,6 +12,10 @@ from .utils import get_shed_groups, get_shed_hierarchy, get_shed_hierarchy_combi
 
 # Create your views here.
 
+def test_hamburger_view(request):
+    """ハンバーガーメニューテスト用ビュー"""
+    return render(request, 'cattle/test_hamburger.html')
+
 class DashboardView(TemplateView):
     """ダッシュボード画面"""
     template_name = 'cattle/dashboard.html'
