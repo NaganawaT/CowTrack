@@ -10,14 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import pymysql
-# PyMySQLをMySQLdbとして使用（最上部で実行）
-try:
-    pymysql.install_as_MySQLdb()
-    print("PyMySQL successfully installed as MySQLdb")
-except Exception as e:
-    print(f"Error installing PyMySQL as MySQLdb: {e}")
-
 import os
 from pathlib import Path
 
