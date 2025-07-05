@@ -9,6 +9,10 @@ from .forms import CowForm, TreatmentForm, FeedingObservationForm, DailyVeterina
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from .utils import get_shed_groups, get_shed_hierarchy, get_shed_hierarchy_combined
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+import json
 
 # Create your views here.
 
@@ -1095,3 +1099,49 @@ class TreatmentResultCreateView(CreateView):
     def form_invalid(self, form):
         messages.error(self.request, '入力内容に誤りがあります。')
         return super().form_invalid(form)
+
+def custom_admin_login(request):
+    """カスタム管理画面ログイン"""
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None and user.is_staff:
+            login(request, user)
+            return redirect('custom_admin_dashboard')
+        else:
+            messages.error(request, 'ユーザー名またはパスワードが正しくありません。')
+    
+    return render(request, 'cattle/custom_admin_login.html')
+
+@login_required
+def custom_admin_dashboard(request):
+    """カスタム管理ダッシュボード"""
+    if not request.user.is_staff:
+        return redirect('login')
+    
+    context = {
+        'total_cows': Cow.objects.count(),
+        'total_treatments': Treatment.objects.count(),
+        'total_observations': FeedingObservation.objects.count(),
+    }
+    return render(request, 'cattle/custom_admin_dashboard.html', context)
+
+@login_required
+def custom_admin_cows(request):
+    """牛の管理ページ"""
+    if not request.user.is_staff:
+        return redirect('login')
+    
+    cows = Cow.objects.all().order_by('cow_number')
+    return render(request, 'cattle/custom_admin_cows.html', {'cows': cows})
+
+@login_required
+def custom_admin_treatments(request):
+    """治療の管理ページ"""
+    if not request.user.is_staff:
+        return redirect('login')
+    
+    treatments = Treatment.objects.all().order_by('-treatment_date')
+    return render(request, 'cattle/custom_admin_treatments.html', {'treatments': treatments})
