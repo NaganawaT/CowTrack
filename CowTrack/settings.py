@@ -169,7 +169,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 if IS_PRODUCTION or not DEBUG:
     # Whitenoiseを使用して静的ファイルを配信
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
     # 静的ファイルのキャッシュ設定
     WHITENOISE_MAX_AGE = 31536000  # 1年
     WHITENOISE_USE_FINDERS = True
