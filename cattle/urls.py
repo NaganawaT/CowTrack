@@ -21,19 +21,19 @@ urlpatterns = [
     
     # 牛管理
     path('cows/', views.cow_list, name='cow_list'),
-    path('cows/add/', views.cow_create, name='cow_form'),
+    path('cows/add/', views.cow_create, name='cow_create'),
     path('cows/<int:cow_id>/', views.cow_detail, name='cow_detail'),
     path('cows/<int:cow_id>/edit/', views.cow_create, name='cow_edit'),
     
     # 治療履歴管理
     path('treatments/', views.TreatmentListView.as_view(), name='treatment_list'),
-    path('treatments/add/', views.TreatmentCreateView.as_view(), name='treatment_form'),
+    path('treatments/add/', views.TreatmentCreateView.as_view(), name='treatment_create'),
     path('treatments/<int:pk>/', views.TreatmentDetailView.as_view(), name='treatment_detail'),
     path('treatments/<int:pk>/edit/', views.TreatmentUpdateView.as_view(), name='treatment_edit'),
     
     # 餌観察記録管理
     path('feeding-observations/', views.FeedingObservationListView.as_view(), name='feeding_observation_list'),
-    path('feeding-observations/add/', views.FeedingObservationCreateView.as_view(), name='feeding_observation_form'),
+    path('feeding-observations/add/', views.FeedingObservationCreateView.as_view(), name='feeding_observation_create'),
     path('feeding-observations/<int:pk>/', views.FeedingObservationDetailView.as_view(), name='feeding_observation_detail'),
     path('feeding-observations/<int:pk>/edit/', views.FeedingObservationUpdateView.as_view(), name='feeding_observation_edit'),
     path('feeding-observations/<int:pk>/delete/', views.FeedingObservationDeleteView.as_view(), name='feeding_observation_confirm_delete'),
