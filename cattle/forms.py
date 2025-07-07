@@ -18,7 +18,7 @@ class ExcelUploadForm(forms.Form):
         label='重複データをスキップ',
         required=False,
         initial=True,
-        help_text='既に登録されている牛番号のデータはスキップします',
+        help_text='既に登録されている個体識別番号のデータはスキップします',
         widget=forms.CheckboxInput(attrs={
             'class': 'form-check-input'
         })
@@ -28,7 +28,7 @@ class ExcelUploadForm(forms.Form):
         label='既存データを更新',
         required=False,
         initial=False,
-        help_text='既に登録されている牛番号のデータを更新します',
+        help_text='既に登録されている個体識別番号のデータを更新します',
         widget=forms.CheckboxInput(attrs={
             'class': 'form-check-input'
         })

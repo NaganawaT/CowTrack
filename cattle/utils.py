@@ -247,9 +247,21 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False):
         
         results['total_rows'] = len(df)
         
-        # 必要な列の存在確認
-        required_columns = ['牛番号', '牛舎番号']
-        missing_columns = [col for col in required_columns if col not in df.columns]
+        # 列名のマッピング
+        column_mapping = {
+            '個体識別番号': 'cow_number',
+            '牛房': 'shed_code',
+            '導入日': 'intake_date',
+            '性別': 'gender',
+            '導入元地域': 'origin_region',
+            'ステータス': 'status'
+        }
+        
+        # 実際の列名を確認
+        actual_columns = list(df.columns)
+        required_columns = ['個体識別番号', '牛房']
+        missing_columns = [col for col in required_columns if col not in actual_columns]
+        
         if missing_columns:
             raise ValidationError(f'必要な列が不足しています: {", ".join(missing_columns)}')
         
@@ -257,16 +269,21 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False):
         for index, row in df.iterrows():
             try:
                 # データの取得と検証
-                cow_number = str(row['牛番号']).strip()
-                shed_code = str(row['牛舎番号']).strip()
+                cow_number = str(row['個体識別番号']).strip()
+                shed_code = str(row['牛房']).strip()
                 
                 # 必須項目の検証
                 if not cow_number or cow_number == 'nan':
-                    results['errors'].append(f'行{index + 2}: 牛番号が空です')
+                    results['errors'].append(f'行{index + 2}: 個体識別番号が空です')
                     continue
                 
                 if not shed_code or shed_code == 'nan':
-                    results['errors'].append(f'行{index + 2}: 牛舎番号が空です')
+                    results['errors'].append(f'行{index + 2}: 牛房が空です')
+                    continue
+                
+                # 個体識別番号の形式チェック（10桁の数字）
+                if not cow_number.isdigit() or len(cow_number) != 10:
+                    results['errors'].append(f'行{index + 2}: 個体識別番号は10桁の数字である必要があります: {cow_number}')
                     continue
                 
                 # オプション項目の取得
@@ -280,9 +297,17 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False):
                     except:
                         results['errors'].append(f'行{index + 2}: 導入日の形式が正しくありません')
                 
-                gender = row.get('性別', 'female')
-                if gender not in ['castrated', 'female']:
-                    gender = 'female'
+                # 性別の変換
+                gender = 'female'  # デフォルト
+                if '性別' in df.columns and pd.notna(row['性別']):
+                    gender_text = str(row['性別']).strip()
+                    if gender_text in ['去勢', 'castrated']:
+                        gender = 'castrated'
+                    elif gender_text in ['メス', 'female']:
+                        gender = 'female'
+                    else:
+                        results['errors'].append(f'行{index + 2}: 性別の値が正しくありません: {gender_text}')
+                        continue
                 
                 origin_region = row.get('導入元地域', '')
                 if origin_region and origin_region != 'nan':
@@ -300,7 +325,7 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False):
                 if existing_cow:
                     if skip_duplicates and not update_existing:
                         results['skipped'] += 1
-                        results['success_messages'].append(f'牛番号 {cow_number}: 既に登録されているためスキップしました')
+                        results['success_messages'].append(f'個体識別番号 {cow_number}: 既に登録されているためスキップしました')
                         continue
                     elif update_existing:
                         # 既存データを更新
@@ -312,9 +337,9 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False):
                         existing_cow.status = status
                         existing_cow.save()
                         results['updated'] += 1
-                        results['success_messages'].append(f'牛番号 {cow_number}: 更新しました')
+                        results['success_messages'].append(f'個体識別番号 {cow_number}: 更新しました')
                     else:
-                        results['errors'].append(f'行{index + 2}: 牛番号 {cow_number} は既に登録されています')
+                        results['errors'].append(f'行{index + 2}: 個体識別番号 {cow_number} は既に登録されています')
                         continue
                 else:
                     # 新規データを作成
@@ -327,7 +352,7 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False):
                         status=status
                     )
                     results['created'] += 1
-                    results['success_messages'].append(f'牛番号 {cow_number}: 登録しました')
+                    results['success_messages'].append(f'個体識別番号 {cow_number}: 登録しました')
                 
             except Exception as e:
                 results['errors'].append(f'行{index + 2}: {str(e)}')
