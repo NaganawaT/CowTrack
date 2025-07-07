@@ -1,3 +1,8 @@
+import pandas as pd
+from datetime import datetime
+from django.core.exceptions import ValidationError
+from .models import Cow
+
 def classify_shed_code(shed_code):
     """
     牛舎番号を分類する関数
@@ -208,4 +213,160 @@ def get_shed_hierarchy_combined():
     for category in hierarchy:
         hierarchy[category].sort(key=lambda x: (x['subcategory'], x['shed_code']))
     
-    return hierarchy 
+    return hierarchy
+
+def process_excel_file(file, skip_duplicates=True, update_existing=False):
+    """
+    Excelファイルを処理して牛のデータを一括登録する
+    
+    Args:
+        file: アップロードされたExcelファイル
+        skip_duplicates: 重複データをスキップするかどうか
+        update_existing: 既存データを更新するかどうか
+    
+    Returns:
+        dict: 処理結果の詳細
+    """
+    results = {
+        'total_rows': 0,
+        'created': 0,
+        'updated': 0,
+        'skipped': 0,
+        'errors': [],
+        'success_messages': []
+    }
+    
+    try:
+        # Excelファイルを読み込み
+        if file.name.endswith('.xlsx'):
+            df = pd.read_excel(file, engine='openpyxl')
+        elif file.name.endswith('.xls'):
+            df = pd.read_excel(file, engine='xlrd')
+        else:
+            raise ValidationError('サポートされていないファイル形式です。.xlsxまたは.xlsファイルを使用してください。')
+        
+        results['total_rows'] = len(df)
+        
+        # 必要な列の存在確認
+        required_columns = ['牛番号', '牛舎番号']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise ValidationError(f'必要な列が不足しています: {", ".join(missing_columns)}')
+        
+        # 各行を処理
+        for index, row in df.iterrows():
+            try:
+                # データの取得と検証
+                cow_number = str(row['牛番号']).strip()
+                shed_code = str(row['牛舎番号']).strip()
+                
+                # 必須項目の検証
+                if not cow_number or cow_number == 'nan':
+                    results['errors'].append(f'行{index + 2}: 牛番号が空です')
+                    continue
+                
+                if not shed_code or shed_code == 'nan':
+                    results['errors'].append(f'行{index + 2}: 牛舎番号が空です')
+                    continue
+                
+                # オプション項目の取得
+                intake_date = None
+                if '導入日' in df.columns and pd.notna(row['導入日']):
+                    try:
+                        if isinstance(row['導入日'], str):
+                            intake_date = datetime.strptime(row['導入日'], '%Y/%m/%d').date()
+                        else:
+                            intake_date = row['導入日'].date()
+                    except:
+                        results['errors'].append(f'行{index + 2}: 導入日の形式が正しくありません')
+                
+                gender = row.get('性別', 'female')
+                if gender not in ['castrated', 'female']:
+                    gender = 'female'
+                
+                origin_region = row.get('導入元地域', '')
+                if origin_region and origin_region != 'nan':
+                    origin_region = str(origin_region).strip()
+                else:
+                    origin_region = ''
+                
+                status = row.get('ステータス', 'active')
+                if status not in ['active', 'inactive']:
+                    status = 'active'
+                
+                # 既存データの確認
+                existing_cow = Cow.objects.filter(cow_number=cow_number).first()
+                
+                if existing_cow:
+                    if skip_duplicates and not update_existing:
+                        results['skipped'] += 1
+                        results['success_messages'].append(f'牛番号 {cow_number}: 既に登録されているためスキップしました')
+                        continue
+                    elif update_existing:
+                        # 既存データを更新
+                        existing_cow.shed_code = shed_code
+                        if intake_date:
+                            existing_cow.intake_date = intake_date
+                        existing_cow.gender = gender
+                        existing_cow.origin_region = origin_region
+                        existing_cow.status = status
+                        existing_cow.save()
+                        results['updated'] += 1
+                        results['success_messages'].append(f'牛番号 {cow_number}: 更新しました')
+                    else:
+                        results['errors'].append(f'行{index + 2}: 牛番号 {cow_number} は既に登録されています')
+                        continue
+                else:
+                    # 新規データを作成
+                    Cow.objects.create(
+                        cow_number=cow_number,
+                        shed_code=shed_code,
+                        intake_date=intake_date,
+                        gender=gender,
+                        origin_region=origin_region,
+                        status=status
+                    )
+                    results['created'] += 1
+                    results['success_messages'].append(f'牛番号 {cow_number}: 登録しました')
+                
+            except Exception as e:
+                results['errors'].append(f'行{index + 2}: {str(e)}')
+        
+        return results
+        
+    except Exception as e:
+        results['errors'].append(f'ファイル処理エラー: {str(e)}')
+        return results
+
+def get_shed_groups():
+    """牛舎別の牛の数を取得"""
+    from django.db.models import Count
+    return Cow.objects.values('shed_code').annotate(count=Count('id')).order_by('shed_code')
+
+def get_shed_hierarchy():
+    """牛舎の階層構造を取得"""
+    return {
+        '導入牛舎': {
+            '導入牛舎A': ['A001', 'A002', 'A003'],
+            '導入牛舎B': ['B001', 'B002', 'B003'],
+        },
+        '肥育牛舎': {
+            '肥育牛舎1': ['1001', '1002', '1003'],
+            '肥育牛舎2': ['2001', '2002', '2003'],
+        }
+    }
+
+def get_shed_hierarchy_combined():
+    """牛舎の階層構造（統合版）を取得"""
+    hierarchy = get_shed_hierarchy()
+    combined = {}
+    
+    for category, subcategories in hierarchy.items():
+        for subcategory, sheds in subcategories.items():
+            for shed in sheds:
+                combined[shed] = {
+                    'category': category,
+                    'subcategory': subcategory
+                }
+    
+    return combined 

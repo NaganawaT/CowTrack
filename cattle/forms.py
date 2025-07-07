@@ -2,6 +2,38 @@ from django import forms
 from django.utils import timezone
 from .models import Cow, Veterinarian, Treatment, FeedingObservation, Medicine, TreatmentMedicine, DailyVeterinarian, TreatmentResult
 
+class ExcelUploadForm(forms.Form):
+    """Excelファイルアップロード用フォーム"""
+    excel_file = forms.FileField(
+        label='Excelファイル',
+        help_text='牛のデータが含まれたExcelファイルを選択してください（.xlsx, .xls）',
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': '.xlsx,.xls'
+        })
+    )
+    
+    # オプション設定
+    skip_duplicates = forms.BooleanField(
+        label='重複データをスキップ',
+        required=False,
+        initial=True,
+        help_text='既に登録されている牛番号のデータはスキップします',
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input'
+        })
+    )
+    
+    update_existing = forms.BooleanField(
+        label='既存データを更新',
+        required=False,
+        initial=False,
+        help_text='既に登録されている牛番号のデータを更新します',
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input'
+        })
+    )
+
 class CowForm(forms.ModelForm):
     """牛登録・編集用フォーム"""
     

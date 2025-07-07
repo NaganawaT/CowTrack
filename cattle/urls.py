@@ -60,4 +60,8 @@ urlpatterns = [
     path('admin/dashboard/', views.custom_admin_dashboard, name='custom_admin_dashboard'),
     path('admin/cows/', views.custom_admin_cows, name='custom_admin_cows'),
     path('admin/treatments/', views.custom_admin_treatments, name='custom_admin_treatments'),
+    
+    # Excelファイルアップロード
+    path('admin/excel-upload/', views.excel_upload, name='excel_upload'),
+    path('admin/excel-upload/preview/', views.excel_upload_preview, name='excel_upload_preview'),
 ] 

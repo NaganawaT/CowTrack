@@ -1,0 +1,259 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}Excelファイルプレビュー - 牛の治療履歴管理システム{% endblock %}
+
+{% block extra_css %}
+<style>
+.excel-preview {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    background: #2c3e50;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.admin-header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+.preview-container {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.preview-table th {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 12px 8px;
+    text-align: left;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.preview-table td {
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    vertical-align: top;
+}
+
+.preview-table tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.preview-table tr:hover {
+    background: #e9ecef;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+    margin: 5px;
+}
+
+.btn-success {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #229954;
+}
+
+.btn-warning {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #e67e22;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.back-link {
+    margin-bottom: 20px;
+}
+
+.back-link a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.back-link a:hover {
+    text-decoration: underline;
+}
+
+.file-info {
+    background: #e9ecef;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.file-info h3 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.file-info p {
+    margin: 5px 0;
+}
+
+.column-mapping {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.column-mapping h3 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.column-mapping ul {
+    margin-bottom: 0;
+}
+
+.column-mapping li {
+    margin-bottom: 5px;
+}
+
+.required {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.optional {
+    color: #6c757d;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="excel-preview">
+    <!-- 管理画面ヘッダー -->
+    <div class="admin-header">
+        <h1>Excelファイルプレビュー</h1>
+        <p>アップロードされたExcelファイルの内容を確認してください</p>
+    </div>
+
+    <!-- 戻るリンク -->
+    <div class="back-link">
+        <a href="{% url 'cattle:excel_upload' %}">← Excelファイルアップロードに戻る</a>
+    </div>
+
+    <!-- ファイル情報 -->
+    <div class="file-info">
+        <h3>📊 ファイル情報</h3>
+        <p><strong>総行数:</strong> {{ total_rows }}行</p>
+        <p><strong>プレビュー表示:</strong> 最初の10行</p>
+        <p><strong>検出された列:</strong> {{ columns|length }}列</p>
+    </div>
+
+    <!-- 列マッピング情報 -->
+    <div class="column-mapping">
+        <h3>📋 列マッピング情報</h3>
+        <p>以下の列が検出されました：</p>
+        <ul>
+            {% for column in columns %}
+                {% if column == '牛番号' or column == '牛舎番号' %}
+                    <li><span class="required">{{ column }}</span>（必須）</li>
+                {% else %}
+                    <li><span class="optional">{{ column }}</span>（任意）</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        
+        {% if '牛番号' not in columns or '牛舎番号' not in columns %}
+            <div style="color: #dc3545; margin-top: 10px;">
+                <strong>⚠️ 警告:</strong> 必須列（牛番号、牛舎番号）が不足しています。
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- プレビューテーブル -->
+    <div class="preview-container">
+        <h3>📋 データプレビュー（最初の10行）</h3>
+        
+        {% if preview_data %}
+            <table class="preview-table">
+                <thead>
+                    <tr>
+                        {% for column in columns %}
+                            <th>{{ column }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in preview_data %}
+                        <tr>
+                            {% for column in columns %}
+                                <td>
+                                    {% if row|get_item:column %}
+                                        {{ row|get_item:column }}
+                                    {% else %}
+                                        <span style="color: #6c757d;">-</span>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>プレビューデータがありません。</p>
+        {% endif %}
+    </div>
+
+    <!-- アクションボタン -->
+    <div style="text-align: center; margin-top: 30px;">
+        <form method="post" enctype="multipart/form-data" style="display: inline;">
+            {% csrf_token %}
+            {{ form.excel_file.as_hidden }}
+            {{ form.skip_duplicates.as_hidden }}
+            {{ form.update_existing.as_hidden }}
+            
+            <button type="submit" class="btn btn-success">一括登録を実行</button>
+        </form>
+        
+        <a href="{% url 'cattle:excel_upload' %}" class="btn btn-warning">ファイルを変更</a>
+        <a href="{% url 'cattle:custom_admin_dashboard' %}" class="btn btn-secondary">キャンセル</a>
+    </div>
+</div>
+{% endblock %} 

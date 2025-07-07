@@ -189,6 +189,12 @@
             <p>Django標準の管理画面に移動します</p>
             <a href="/django-admin/" class="btn btn-warning">Django管理画面</a>
         </div>
+        
+        <div class="action-card">
+            <h3>Excel一括登録</h3>
+            <p>Excelファイルから牛のデータを一括で登録します</p>
+            <a href="{% url 'cattle:excel_upload' %}" class="btn btn-success">一括登録</a>
+        </div>
     </div>
 
     <!-- ログアウト -->

@@ -19,4 +19,9 @@ def intake_month(cow):
     """導入月を1桁の数字で返す"""
     if cow.intake_date:
         return str(cow.intake_date.month)
-    return '-' 
+    return '-'
+
+@register.filter
+def get_item(dictionary, key):
+    """辞書からキーで値を取得するフィルター"""
+    return dictionary.get(key) 

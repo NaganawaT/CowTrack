@@ -5,10 +5,10 @@ from django.db.models import Q, Count
 from django.utils import timezone
 from datetime import timedelta, time, datetime
 from .models import Cow, Veterinarian, Treatment, FeedingObservation, DailyVeterinarian, TreatmentResult
-from .forms import CowForm, TreatmentForm, FeedingObservationForm, DailyVeterinarianForm, TreatmentResultForm
+from .forms import CowForm, TreatmentForm, FeedingObservationForm, DailyVeterinarianForm, TreatmentResultForm, ExcelUploadForm
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .utils import get_shed_groups, get_shed_hierarchy, get_shed_hierarchy_combined
+from .utils import get_shed_groups, get_shed_hierarchy, get_shed_hierarchy_combined, process_excel_file
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -1173,3 +1173,80 @@ def custom_admin_treatments(request):
     
     treatments = Treatment.objects.all().order_by('-treatment_date')
     return render(request, 'cattle/custom_admin_treatments.html', {'treatments': treatments})
+
+@login_required
+def excel_upload(request):
+    """Excelファイルアップロード処理"""
+    if not request.user.is_staff:
+        return redirect('login')
+    
+    if request.method == 'POST':
+        form = ExcelUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            excel_file = form.cleaned_data['excel_file']
+            skip_duplicates = form.cleaned_data['skip_duplicates']
+            update_existing = form.cleaned_data['update_existing']
+            
+            # Excelファイルを処理
+            results = process_excel_file(excel_file, skip_duplicates, update_existing)
+            
+            # 結果をメッセージとして表示
+            if results['created'] > 0:
+                messages.success(request, f'{results["created"]}件の牛データを登録しました。')
+            if results['updated'] > 0:
+                messages.success(request, f'{results["updated"]}件の牛データを更新しました。')
+            if results['skipped'] > 0:
+                messages.info(request, f'{results["skipped"]}件のデータをスキップしました。')
+            if results['errors']:
+                for error in results['errors']:
+                    messages.error(request, error)
+            
+            return redirect('cattle:excel_upload')
+    else:
+        form = ExcelUploadForm()
+    
+    return render(request, 'cattle/excel_upload.html', {'form': form})
+
+@login_required
+def excel_upload_preview(request):
+    """Excelファイルのプレビュー表示"""
+    if not request.user.is_staff:
+        return redirect('login')
+    
+    if request.method == 'POST':
+        form = ExcelUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            excel_file = form.cleaned_data['excel_file']
+            
+            try:
+                import pandas as pd
+                
+                # Excelファイルを読み込み
+                if excel_file.name.endswith('.xlsx'):
+                    df = pd.read_excel(excel_file, engine='openpyxl')
+                elif excel_file.name.endswith('.xls'):
+                    df = pd.read_excel(excel_file, engine='xlrd')
+                else:
+                    messages.error(request, 'サポートされていないファイル形式です。')
+                    return redirect('cattle:excel_upload')
+                
+                # プレビューデータを準備
+                preview_data = df.head(10).to_dict('records')  # 最初の10行
+                columns = list(df.columns)
+                
+                context = {
+                    'preview_data': preview_data,
+                    'columns': columns,
+                    'total_rows': len(df),
+                    'form': form
+                }
+                
+                return render(request, 'cattle/excel_upload_preview.html', context)
+                
+            except Exception as e:
+                messages.error(request, f'ファイルの読み込みに失敗しました: {str(e)}')
+                return redirect('cattle:excel_upload')
+    else:
+        form = ExcelUploadForm()
+    
+    return render(request, 'cattle/excel_upload.html', {'form': form})

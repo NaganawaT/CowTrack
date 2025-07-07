@@ -1,0 +1,288 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}Excelファイル一括登録 - 牛の治療履歴管理システム{% endblock %}
+
+{% block extra_css %}
+<style>
+.excel-upload {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    background: #2c3e50;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.admin-header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+.upload-form {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.form-check {
+    margin-bottom: 15px;
+}
+
+.form-check-input {
+    margin-right: 8px;
+}
+
+.help-text {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+}
+
+.btn-success {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #229954;
+}
+
+.btn-warning {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #e67e22;
+}
+
+.back-link {
+    margin-bottom: 20px;
+}
+
+.back-link a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.back-link a:hover {
+    text-decoration: underline;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.file-format-info {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.file-format-info h3 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.file-format-info ul {
+    margin-bottom: 0;
+}
+
+.file-format-info li {
+    margin-bottom: 5px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="excel-upload">
+    <!-- 管理画面ヘッダー -->
+    <div class="admin-header">
+        <h1>Excelファイル一括登録</h1>
+        <p>Excelファイルから牛のデータを一括で登録します</p>
+    </div>
+
+    <!-- 戻るリンク -->
+    <div class="back-link">
+        <a href="{% url 'cattle:custom_admin_dashboard' %}">← 管理ダッシュボードに戻る</a>
+    </div>
+
+    <!-- メッセージ表示 -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}error{% else %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- ファイル形式情報 -->
+    <div class="file-format-info">
+        <h3>📋 Excelファイル形式について</h3>
+        <p>以下の列を含むExcelファイル（.xlsx, .xls）をアップロードしてください：</p>
+        <ul>
+            <li><strong>牛番号</strong>（必須）: 10桁の個体識別番号</li>
+            <li><strong>牛舎番号</strong>（必須）: 牛舎の番号</li>
+            <li><strong>導入日</strong>（任意）: YYYY/MM/DD形式</li>
+            <li><strong>性別</strong>（任意）: "castrated"（去勢）または"female"（メス）</li>
+            <li><strong>導入元地域</strong>（任意）: 北海道、曽於、関、飛騨、自家など</li>
+            <li><strong>ステータス</strong>（任意）: "active"（活動中）または"inactive"（非活動）</li>
+        </ul>
+    </div>
+
+    <!-- アップロードフォーム -->
+    <div class="upload-form">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.excel_file.id_for_label }}" class="form-label">
+                    {{ form.excel_file.label }}
+                </label>
+                {{ form.excel_file }}
+                {% if form.excel_file.help_text %}
+                    <div class="help-text">{{ form.excel_file.help_text }}</div>
+                {% endif %}
+                {% if form.excel_file.errors %}
+                    <div class="alert alert-error">
+                        {% for error in form.excel_file.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    {{ form.skip_duplicates }}
+                    <label for="{{ form.skip_duplicates.id_for_label }}" class="form-label">
+                        {{ form.skip_duplicates.label }}
+                    </label>
+                    {% if form.skip_duplicates.help_text %}
+                        <div class="help-text">{{ form.skip_duplicates.help_text }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    {{ form.update_existing }}
+                    <label for="{{ form.update_existing.id_for_label }}" class="form-label">
+                        {{ form.update_existing.label }}
+                    </label>
+                    {% if form.update_existing.help_text %}
+                        <div class="help-text">{{ form.update_existing.help_text }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="submit" class="btn btn-success">一括登録を実行</button>
+                <a href="{% url 'cattle:custom_admin_dashboard' %}" class="btn btn-warning" style="margin-left: 10px;">キャンセル</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- サンプルファイルダウンロード -->
+    <div style="margin-top: 30px; text-align: center;">
+        <p>サンプルファイルが必要な場合は、以下の形式でExcelファイルを作成してください：</p>
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 4px; display: inline-block;">
+            <table style="border-collapse: collapse; margin: 0 auto;">
+                <tr style="background: #e9ecef;">
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">牛番号</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">牛舎番号</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">導入日</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">性別</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">導入元地域</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">ステータス</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">1234567890</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">A001</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">2024/01/15</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">female</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">北海道</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">active</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 
