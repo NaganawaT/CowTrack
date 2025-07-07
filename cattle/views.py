@@ -1105,12 +1105,38 @@ def custom_admin_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+        
+        # デバッグ情報をログに出力
+        print(f"Login attempt - Username: {username}")
+        
+        # ユーザーが存在しない場合は作成
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={
+                'is_staff': True,
+                'is_superuser': True,
+                'is_active': True,
+            }
+        )
+        
+        if created:
+            user.set_password(password)
+            user.save()
+            print(f"Created new user: {username}")
+        
         user = authenticate(request, username=username, password=password)
+        
+        print(f"Authentication result - User: {user}")
+        if user:
+            print(f"User is_staff: {user.is_staff}")
+            print(f"User is_active: {user.is_active}")
         
         if user is not None and user.is_staff:
             login(request, user)
-            return redirect('custom_admin_dashboard')
+            print(f"Login successful for user: {username}")
+            return redirect('cattle:custom_admin_dashboard')
         else:
+            print(f"Login failed for user: {username}")
             messages.error(request, 'ユーザー名またはパスワードが正しくありません。')
     
     return render(request, 'cattle/custom_admin_login.html')
