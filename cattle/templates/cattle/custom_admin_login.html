@@ -33,6 +33,11 @@
                             <button type="submit" class="btn btn-primary">ログイン</button>
                         </div>
                     </form>
+                    
+                    <!-- 管理ダッシュボードへのリンク -->
+                    <div class="mt-3 text-center">
+                        <p>既にログイン済みの場合は <a href="{% url 'cattle:custom_admin_dashboard' %}">管理ダッシュボード</a> にアクセスしてください。</p>
+                    </div>
                 </div>
             </div>
         </div>
