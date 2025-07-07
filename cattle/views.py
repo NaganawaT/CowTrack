@@ -1143,42 +1143,48 @@ def custom_admin_login(request):
     
     return render(request, 'cattle/custom_admin_login.html')
 
-@login_required
+@login_required(login_url='/admin/login/')
 def custom_admin_dashboard(request):
     """カスタム管理ダッシュボード"""
     if not request.user.is_staff:
-        return redirect('login')
+        return redirect('cattle:custom_admin_login')
+    
+    # 統計情報を取得
+    total_cows = Cow.objects.count()
+    total_treatments = Treatment.objects.count()
+    total_observations = FeedingObservation.objects.count()
     
     context = {
-        'total_cows': Cow.objects.count(),
-        'total_treatments': Treatment.objects.count(),
-        'total_observations': FeedingObservation.objects.count(),
+        'total_cows': total_cows,
+        'total_treatments': total_treatments,
+        'total_observations': total_observations,
     }
+    
     return render(request, 'cattle/custom_admin_dashboard.html', context)
 
-@login_required
+@login_required(login_url='/admin/login/')
 def custom_admin_cows(request):
     """牛の管理ページ"""
     if not request.user.is_staff:
-        return redirect('login')
+        return redirect('cattle:custom_admin_login')
     
-    cows = Cow.objects.all().order_by('cow_number')
+    cows = Cow.objects.all().order_by('shed_code', 'cow_number')
     return render(request, 'cattle/custom_admin_cows.html', {'cows': cows})
 
-@login_required
+@login_required(login_url='/admin/login/')
 def custom_admin_treatments(request):
     """治療の管理ページ"""
     if not request.user.is_staff:
-        return redirect('login')
+        return redirect('cattle:custom_admin_login')
     
     treatments = Treatment.objects.all().order_by('-treatment_date')
     return render(request, 'cattle/custom_admin_treatments.html', {'treatments': treatments})
 
-@login_required
+@login_required(login_url='/admin/login/')
 def excel_upload(request):
     """Excelファイルアップロード処理"""
     if not request.user.is_staff:
-        return redirect('login')
+        return redirect('cattle:custom_admin_login')
     
     if request.method == 'POST':
         form = ExcelUploadForm(request.POST, request.FILES)
@@ -1207,11 +1213,11 @@ def excel_upload(request):
     
     return render(request, 'cattle/excel_upload.html', {'form': form})
 
-@login_required
+@login_required(login_url='/admin/login/')
 def excel_upload_preview(request):
     """Excelファイルのプレビュー表示"""
     if not request.user.is_staff:
-        return redirect('login')
+        return redirect('cattle:custom_admin_login')
     
     if request.method == 'POST':
         form = ExcelUploadForm(request.POST, request.FILES)

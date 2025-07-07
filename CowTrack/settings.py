@@ -180,6 +180,11 @@ if IS_PRODUCTION or not DEBUG:
 # デフォルトの主キーフィールドタイプ
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# ログイン設定
+LOGIN_URL = '/admin/login/'
+LOGIN_REDIRECT_URL = '/admin/dashboard/'
+LOGOUT_REDIRECT_URL = '/admin/login/'
+
 # CSRF設定（ngrok対応）
 CSRF_TRUSTED_ORIGINS = [
     'https://*.ngrok-free.app',
