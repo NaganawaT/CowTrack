@@ -33,9 +33,9 @@ def health_check(request):
         return JsonResponse({"status": "ERROR", "message": str(e)}, status=500)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('health/', health_check, name='health_check'),
     path('', include('cattle.urls')),
+    path('django-admin/', admin.site.urls),  # Django標準管理画面を別パスに移動
+    path('health/', health_check, name='health_check'),
 ]
 
 # 本番環境での静的ファイル配信
