@@ -1,0 +1,191 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}治療履歴管理 - 牛の治療履歴管理システム{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-treatments {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    background: #2c3e50;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.admin-header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+.treatments-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.treatments-table th,
+.treatments-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.treatments-table th {
+    background: #f8f9fa;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.treatments-table tr:hover {
+    background: #f8f9fa;
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+}
+
+.btn-success {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #229954;
+}
+
+.btn-warning {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #e67e22;
+}
+
+.back-link {
+    margin-bottom: 20px;
+}
+
+.back-link a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.back-link a:hover {
+    text-decoration: underline;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
+
+.diagnosis-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-treatments">
+    <!-- 管理画面ヘッダー -->
+    <div class="admin-header">
+        <h1>治療履歴管理</h1>
+        <p>登録されている治療履歴の一覧と管理</p>
+    </div>
+
+    <!-- 戻るリンク -->
+    <div class="back-link">
+        <a href="{% url 'cattle:custom_admin_dashboard' %}">← 管理ダッシュボードに戻る</a>
+    </div>
+
+    <!-- 治療履歴一覧テーブル -->
+    {% if treatments %}
+        <table class="treatments-table">
+            <thead>
+                <tr>
+                    <th>治療日</th>
+                    <th>牛番号</th>
+                    <th>牛舎番号</th>
+                    <th>診断</th>
+                    <th>獣医師</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for treatment in treatments %}
+                <tr>
+                    <td>{{ treatment.treatment_date|date:"Y/m/d H:i" }}</td>
+                    <td>
+                        <a href="{% url 'cattle:cow_detail' treatment.cow.id %}">
+                            {{ treatment.cow.cow_number }}
+                        </a>
+                    </td>
+                    <td>{{ treatment.cow.shed_code }}</td>
+                    <td class="diagnosis-cell">
+                        {% if treatment.diagnosis %}
+                            {{ treatment.diagnosis|truncatechars:30 }}
+                        {% else %}
+                            <span style="color: #999;">診断なし</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if treatment.veterinarian %}
+                            {{ treatment.veterinarian.name }}
+                        {% else %}
+                            <span style="color: #999;">未設定</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'cattle:treatment_detail' treatment.id %}" class="btn btn-primary">詳細</a>
+                        <a href="{% url 'cattle:treatment_edit' treatment.id %}" class="btn btn-success">編集</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-message">
+            <p>登録されている治療履歴がありません。</p>
+            <a href="{% url 'cattle:treatment_create' %}" class="btn btn-success">最初の治療履歴を登録</a>
+        </div>
+    {% endif %}
+
+    <!-- アクションボタン -->
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="{% url 'cattle:treatment_create' %}" class="btn btn-success">新しい治療履歴を登録</a>
+        <a href="{% url 'cattle:treatment_list' %}" class="btn btn-primary">一般ユーザー画面で表示</a>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,199 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}管理ダッシュボード - 牛の治療履歴管理システム{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'cattle/css/dashboard.css' %}">
+<style>
+.admin-dashboard {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    background: #2c3e50;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.admin-header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-number {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #3498db;
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 1.1em;
+}
+
+.admin-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.action-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.action-card h3 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+}
+
+.action-card p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+}
+
+.btn-success {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #229954;
+}
+
+.btn-warning {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #e67e22;
+}
+
+.logout-section {
+    text-align: center;
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.logout-section a {
+    color: #e74c3c;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.logout-section a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <!-- 管理画面ヘッダー -->
+    <div class="admin-header">
+        <h1>管理ダッシュボード</h1>
+        <p>牛の治療履歴管理システム - 管理者用</p>
+    </div>
+
+    <!-- 統計情報 -->
+    <div class="admin-stats">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_cows }}</div>
+            <div class="stat-label">総牛数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_treatments }}</div>
+            <div class="stat-label">総治療履歴</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_observations }}</div>
+            <div class="stat-label">総観察記録</div>
+        </div>
+    </div>
+
+    <!-- 管理アクション -->
+    <div class="admin-actions">
+        <div class="action-card">
+            <h3>牛の管理</h3>
+            <p>牛の登録、編集、削除を行います</p>
+            <a href="{% url 'cattle:custom_admin_cows' %}" class="btn btn-primary">牛一覧</a>
+        </div>
+        
+        <div class="action-card">
+            <h3>治療履歴管理</h3>
+            <p>治療履歴の確認、編集を行います</p>
+            <a href="{% url 'cattle:custom_admin_treatments' %}" class="btn btn-success">治療履歴一覧</a>
+        </div>
+        
+        <div class="action-card">
+            <h3>一般ユーザー画面</h3>
+            <p>一般ユーザー向けの画面に移動します</p>
+            <a href="{% url 'cattle:dashboard' %}" class="btn btn-warning">ダッシュボード</a>
+        </div>
+        
+        <div class="action-card">
+            <h3>Django管理画面</h3>
+            <p>Django標準の管理画面に移動します</p>
+            <a href="/django-admin/" class="btn btn-warning">Django管理画面</a>
+        </div>
+    </div>
+
+    <!-- ログアウト -->
+    <div class="logout-section">
+        <p>ログアウトする場合は <a href="{% url 'cattle:custom_admin_login' %}">こちら</a></p>
+    </div>
+</div>
+{% endblock %} 

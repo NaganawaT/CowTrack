@@ -1,0 +1,172 @@
+{% extends 'cattle/base.html' %}
+{% load static %}
+
+{% block title %}牛の管理 - 牛の治療履歴管理システム{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-cows {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    background: #2c3e50;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.admin-header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+.cows-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.cows-table th,
+.cows-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.cows-table th {
+    background: #f8f9fa;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.cows-table tr:hover {
+    background: #f8f9fa;
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+}
+
+.btn-success {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #229954;
+}
+
+.btn-warning {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #e67e22;
+}
+
+.back-link {
+    margin-bottom: 20px;
+}
+
+.back-link a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.back-link a:hover {
+    text-decoration: underline;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-cows">
+    <!-- 管理画面ヘッダー -->
+    <div class="admin-header">
+        <h1>牛の管理</h1>
+        <p>登録されている牛の一覧と管理</p>
+    </div>
+
+    <!-- 戻るリンク -->
+    <div class="back-link">
+        <a href="{% url 'cattle:custom_admin_dashboard' %}">← 管理ダッシュボードに戻る</a>
+    </div>
+
+    <!-- 牛一覧テーブル -->
+    {% if cows %}
+        <table class="cows-table">
+            <thead>
+                <tr>
+                    <th>牛番号</th>
+                    <th>牛舎番号</th>
+                    <th>ステータス</th>
+                    <th>導入日</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cow in cows %}
+                <tr>
+                    <td>{{ cow.cow_number }}</td>
+                    <td>{{ cow.shed_code }}</td>
+                    <td>
+                        {% if cow.status == 'active' %}
+                            <span style="color: #27ae60;">活動中</span>
+                        {% else %}
+                            <span style="color: #e74c3c;">非活動</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ cow.intake_date|date:"Y/m/d"|default:"未設定" }}</td>
+                    <td>
+                        <a href="{% url 'cattle:cow_detail' cow.id %}" class="btn btn-primary">詳細</a>
+                        <a href="{% url 'cattle:cow_edit' cow.id %}" class="btn btn-success">編集</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-message">
+            <p>登録されている牛がありません。</p>
+            <a href="{% url 'cattle:cow_create' %}" class="btn btn-success">最初の牛を登録</a>
+        </div>
+    {% endif %}
+
+    <!-- アクションボタン -->
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="{% url 'cattle:cow_create' %}" class="btn btn-success">新しい牛を登録</a>
+        <a href="{% url 'cattle:cow_list' %}" class="btn btn-primary">一般ユーザー画面で表示</a>
+    </div>
+</div>
+{% endblock %} 
