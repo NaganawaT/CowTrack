@@ -12,6 +12,7 @@ from .utils import get_shed_groups, get_shed_hierarchy, get_shed_hierarchy_combi
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 import json
 
 # Create your views here.
@@ -1100,6 +1101,7 @@ class TreatmentResultCreateView(CreateView):
         messages.error(self.request, '入力内容に誤りがあります。')
         return super().form_invalid(form)
 
+@csrf_exempt
 def custom_admin_login(request):
     """カスタム管理画面ログイン"""
     if request.method == 'POST':
