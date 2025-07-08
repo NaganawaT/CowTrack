@@ -497,4 +497,90 @@ def generate_valid_cattle_id(body_number):
         str: 10桁の有効な個体識別番号
     """
     check_digit = calculate_check_digit(body_number)
-    return body_number + str(check_digit) 
+    return body_number + str(check_digit)
+
+def preview_excel_file(file):
+    """
+    Excelファイルをプレビューし、チェックデジット不一致牛の詳細リストを返す
+    Returns:
+        dict: {'valid': [正常牛リスト], 'invalid': [不一致牛詳細リスト], 'total_rows': int}
+    """
+    results = {
+        'valid': [],
+        'invalid': [],
+        'total_rows': 0
+    }
+    if file.name.endswith('.xlsx'):
+        df = pd.read_excel(file, engine='openpyxl')
+    elif file.name.endswith('.xls'):
+        df = pd.read_excel(file, engine='xlrd')
+    else:
+        raise ValidationError('サポートされていないファイル形式です。.xlsxまたは.xlsファイルを使用してください。')
+    results['total_rows'] = len(df)
+    for index, row in df.iterrows():
+        cow_number = str(row['個体識別番号']).strip()
+        shed_code = str(row['牛房']).strip()
+        if cow_number.isdigit():
+            cow_number = cow_number.zfill(10)
+        else:
+            continue
+        if len(cow_number) != 10:
+            continue
+        # 詳細情報取得
+        detail = {
+            'row': index + 2,
+            'cow_number': cow_number,
+            'body_number': cow_number[:9],
+            'actual_check_digit': cow_number[9],
+            'calculated_check_digit': str(calculate_check_digit(cow_number[:9])),
+            'shed_code': shed_code,
+            'intake_date': str(row['導入日']) if '導入日' in df.columns and pd.notna(row['導入日']) else '',
+            'gender': str(row['性別']) if '性別' in df.columns and pd.notna(row['性別']) else '',
+            'origin_region': str(row['導入元地域']) if '導入元地域' in df.columns and pd.notna(row['導入元地域']) else '',
+            'status': str(row['ステータス']) if 'ステータス' in df.columns and pd.notna(row['ステータス']) else '',
+        }
+        if validate_cattle_id(cow_number):
+            results['valid'].append(detail)
+        else:
+            results['invalid'].append(detail)
+    return results
+
+def register_cows_from_preview(cow_details):
+    """
+    プレビュー画面で選択された牛のみ登録する
+    Args:
+        cow_details: [{...}]  # preview_excel_fileで得た辞書のリスト
+    Returns:
+        dict: {'created': int, 'errors': [str]}
+    """
+    from .models import Cow
+    from datetime import datetime
+    results = {'created': 0, 'errors': []}
+    for detail in cow_details:
+        try:
+            cow_number = detail['cow_number']
+            shed_code = detail['shed_code']
+            intake_date = None
+            if detail.get('intake_date'):
+                try:
+                    intake_date = datetime.strptime(detail['intake_date'], '%Y/%m/%d').date()
+                except:
+                    pass
+            gender = detail.get('gender', 'female')
+            origin_region = detail.get('origin_region', '')
+            status = detail.get('status', 'active')
+            if not Cow.objects.filter(cow_number=cow_number).exists():
+                Cow.objects.create(
+                    cow_number=cow_number,
+                    shed_code=shed_code,
+                    intake_date=intake_date,
+                    gender=gender,
+                    origin_region=origin_region,
+                    status=status
+                )
+                results['created'] += 1
+            else:
+                results['errors'].append(f'{cow_number} は既に登録されています')
+        except Exception as e:
+            results['errors'].append(f'{detail.get('cow_number', '')}: {str(e)}')
+    return results 

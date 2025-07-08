@@ -1,7 +1,7 @@
 {% extends 'cattle/base.html' %}
 {% load static %}
 
-{% block title %}Excelファイルプレビュー - 牛の治療履歴管理システム{% endblock %}
+{% block title %}Excelインポートプレビュー{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -166,94 +166,65 @@
 {% endblock %}
 
 {% block content %}
-<div class="excel-preview">
-    <!-- 管理画面ヘッダー -->
-    <div class="admin-header">
-        <h1>Excelファイルプレビュー</h1>
-        <p>アップロードされたExcelファイルの内容を確認してください</p>
-    </div>
-
-    <!-- 戻るリンク -->
-    <div class="back-link">
-        <a href="{% url 'cattle:excel_upload' %}">← Excelファイルアップロードに戻る</a>
-    </div>
-
-    <!-- ファイル情報 -->
-    <div class="file-info">
-        <h3>📊 ファイル情報</h3>
-        <p><strong>総行数:</strong> {{ total_rows }}行</p>
-        <p><strong>プレビュー表示:</strong> 最初の10行</p>
-        <p><strong>検出された列:</strong> {{ columns|length }}列</p>
-    </div>
-
-    <!-- 列マッピング情報 -->
-    <div class="column-mapping">
-        <h3>📋 列マッピング情報</h3>
-        <p>以下の列が検出されました：</p>
-        <ul>
-            {% for column in columns %}
-                {% if column == '牛番号' or column == '牛舎番号' %}
-                    <li><span class="required">{{ column }}</span>（必須）</li>
-                {% else %}
-                    <li><span class="optional">{{ column }}</span>（任意）</li>
-                {% endif %}
+<div class="excel-upload">
+    <h2>Excelインポートプレビュー</h2>
+    <p>ファイル名: {{ file_name }}</p>
+    <p>総行数: {{ preview.total_rows }}行</p>
+    <hr>
+    <h3>チェックデジットが正しい牛（自動登録）</h3>
+    {% if preview.valid %}
+    <table border="1" style="width:100%; margin-bottom:20px;">
+        <tr>
+            <th>行</th><th>個体識別番号</th><th>牛房</th><th>性別</th><th>導入日</th><th>導入元地域</th><th>ステータス</th>
+        </tr>
+        {% for cow in preview.valid %}
+        <tr>
+            <td>{{ cow.row }}</td>
+            <td>{{ cow.cow_number }}</td>
+            <td>{{ cow.shed_code }}</td>
+            <td>{{ cow.gender }}</td>
+            <td>{{ cow.intake_date }}</td>
+            <td>{{ cow.origin_region }}</td>
+            <td>{{ cow.status }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>該当なし</p>
+    {% endif %}
+    <hr>
+    <h3 style="color:red;">チェックデジットが不一致の牛（登録する場合はチェックを入れてください）</h3>
+    <form method="post">
+        {% csrf_token %}
+        {% if preview.invalid %}
+        <table border="1" style="width:100%;">
+            <tr>
+                <th>登録</th><th>行</th><th>個体識別番号</th><th>本体番号</th><th>実際のCD</th><th>計算CD</th><th>牛房</th><th>性別</th><th>導入日</th><th>導入元地域</th><th>ステータス</th>
+            </tr>
+            {% for cow in preview.invalid %}
+            <tr>
+                <td><input type="checkbox" name="register_cow" value="{{ forloop.counter0 }}"></td>
+                <td>{{ cow.row }}</td>
+                <td>{{ cow.cow_number }}</td>
+                <td>{{ cow.body_number }}</td>
+                <td>{{ cow.actual_check_digit }}</td>
+                <td>{{ cow.calculated_check_digit }}</td>
+                <td>{{ cow.shed_code }}</td>
+                <td>{{ cow.gender }}</td>
+                <td>{{ cow.intake_date }}</td>
+                <td>{{ cow.origin_region }}</td>
+                <td>{{ cow.status }}</td>
+            </tr>
             {% endfor %}
-        </ul>
-        
-        {% if '個体識別番号' not in columns or '牛房' not in columns %}
-            <div style="color: #dc3545; margin-top: 10px;">
-                <strong>⚠️ 警告:</strong> 必須列（個体識別番号、牛房）が不足しています。
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- プレビューテーブル -->
-    <div class="preview-container">
-        <h3>📋 データプレビュー（最初の10行）</h3>
-        
-        {% if preview_data %}
-            <table class="preview-table">
-                <thead>
-                    <tr>
-                        {% for column in columns %}
-                            <th>{{ column }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in preview_data %}
-                        <tr>
-                            {% for column in columns %}
-                                <td>
-                                    {% if row|get_item:column %}
-                                        {{ row|get_item:column }}
-                                    {% else %}
-                                        <span style="color: #6c757d;">-</span>
-                                    {% endif %}
-                                </td>
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        </table>
+        <div style="margin-top:20px;">
+            <button type="submit" class="btn btn-success">選択した牛を登録</button>
+            <a href="{% url 'cattle:excel_upload' %}" class="btn btn-warning">キャンセル</a>
+        </div>
         {% else %}
-            <p>プレビューデータがありません。</p>
+        <p>該当なし</p>
+        <a href="{% url 'cattle:excel_upload' %}" class="btn btn-primary">戻る</a>
         {% endif %}
-    </div>
-
-    <!-- アクションボタン -->
-    <div style="text-align: center; margin-top: 30px;">
-        <form method="post" enctype="multipart/form-data" style="display: inline;">
-            {% csrf_token %}
-            {{ form.excel_file.as_hidden }}
-            {{ form.skip_duplicates.as_hidden }}
-            {{ form.update_existing.as_hidden }}
-            
-            <button type="submit" class="btn btn-success">一括登録を実行</button>
-        </form>
-        
-        <a href="{% url 'cattle:excel_upload' %}" class="btn btn-warning">ファイルを変更</a>
-        <a href="{% url 'cattle:custom_admin_dashboard' %}" class="btn btn-secondary">キャンセル</a>
-    </div>
+    </form>
 </div>
 {% endblock %} 

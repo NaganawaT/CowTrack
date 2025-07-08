@@ -8,7 +8,7 @@ from .models import Cow, Veterinarian, Treatment, FeedingObservation, DailyVeter
 from .forms import CowForm, TreatmentForm, FeedingObservationForm, DailyVeterinarianForm, TreatmentResultForm, ExcelUploadForm
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .utils import get_shed_groups, get_shed_hierarchy, get_shed_hierarchy_combined, process_excel_file
+from .utils import get_shed_groups, get_shed_hierarchy, get_shed_hierarchy_combined, process_excel_file, preview_excel_file, register_cows_from_preview
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -1182,7 +1182,7 @@ def custom_admin_treatments(request):
 
 @login_required(login_url='/admin/login/')
 def excel_upload(request):
-    """Excelファイルアップロード処理"""
+    """Excelファイルアップロード処理（プレビュー→選択登録対応）"""
     if not request.user.is_staff:
         return redirect('cattle:custom_admin_login')
     
@@ -1192,68 +1192,41 @@ def excel_upload(request):
             excel_file = form.cleaned_data['excel_file']
             skip_duplicates = form.cleaned_data['skip_duplicates']
             update_existing = form.cleaned_data['update_existing']
-            skip_check_digit = form.cleaned_data['skip_check_digit']
-            
-            # Excelファイルを処理
-            results = process_excel_file(excel_file, skip_duplicates, update_existing, skip_check_digit)
-            
-            # 結果をメッセージとして表示
-            if results['created'] > 0:
-                messages.success(request, f'{results["created"]}件の牛データを登録しました。')
-            if results['updated'] > 0:
-                messages.success(request, f'{results["updated"]}件の牛データを更新しました。')
-            if results['skipped'] > 0:
-                messages.info(request, f'{results["skipped"]}件のデータをスキップしました。')
-            if results['errors']:
-                for error in results['errors']:
-                    messages.error(request, error)
-            
-            return redirect('cattle:excel_upload')
+            # 1回目: プレビュー
+            preview = preview_excel_file(excel_file)
+            request.session['excel_preview_data'] = preview  # セッションに保存
+            request.session['excel_file_name'] = excel_file.name
+            return redirect('cattle:excel_upload_preview')
     else:
         form = ExcelUploadForm()
-    
     return render(request, 'cattle/excel_upload.html', {'form': form})
 
 @login_required(login_url='/admin/login/')
 def excel_upload_preview(request):
-    """Excelファイルのプレビュー表示"""
+    """Excelファイルのプレビュー表示と選択登録"""
     if not request.user.is_staff:
         return redirect('cattle:custom_admin_login')
-    
+    preview = request.session.get('excel_preview_data')
+    file_name = request.session.get('excel_file_name')
+    if not preview:
+        messages.error(request, 'プレビュー情報が見つかりません。再度アップロードしてください。')
+        return redirect('cattle:excel_upload')
     if request.method == 'POST':
-        form = ExcelUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            excel_file = form.cleaned_data['excel_file']
-            
-            try:
-                import pandas as pd
-                
-                # Excelファイルを読み込み
-                if excel_file.name.endswith('.xlsx'):
-                    df = pd.read_excel(excel_file, engine='openpyxl')
-                elif excel_file.name.endswith('.xls'):
-                    df = pd.read_excel(excel_file, engine='xlrd')
-                else:
-                    messages.error(request, 'サポートされていないファイル形式です。')
-                    return redirect('cattle:excel_upload')
-                
-                # プレビューデータを準備
-                preview_data = df.head(10).to_dict('records')  # 最初の10行
-                columns = list(df.columns)
-                
-                context = {
-                    'preview_data': preview_data,
-                    'columns': columns,
-                    'total_rows': len(df),
-                    'form': form
-                }
-                
-                return render(request, 'cattle/excel_upload_preview.html', context)
-                
-            except Exception as e:
-                messages.error(request, f'ファイルの読み込みに失敗しました: {str(e)}')
-                return redirect('cattle:excel_upload')
-    else:
-        form = ExcelUploadForm()
-    
-    return render(request, 'cattle/excel_upload.html', {'form': form})
+        # ユーザーが選択した牛のみ登録
+        selected_indexes = request.POST.getlist('register_cow')
+        selected = [preview['invalid'][int(idx)] for idx in selected_indexes]
+        # 正常牛は自動登録
+        all_to_register = preview['valid'] + selected
+        result = register_cows_from_preview(all_to_register)
+        messages.success(request, f'{result["created"]}件の牛データを登録しました。')
+        if result['errors']:
+            for err in result['errors']:
+                messages.error(request, err)
+        # セッション削除
+        request.session.pop('excel_preview_data', None)
+        request.session.pop('excel_file_name', None)
+        return redirect('cattle:excel_upload')
+    return render(request, 'cattle/excel_upload_preview.html', {
+        'preview': preview,
+        'file_name': file_name
+    })
