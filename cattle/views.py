@@ -1192,9 +1192,10 @@ def excel_upload(request):
             excel_file = form.cleaned_data['excel_file']
             skip_duplicates = form.cleaned_data['skip_duplicates']
             update_existing = form.cleaned_data['update_existing']
+            skip_check_digit = form.cleaned_data['skip_check_digit']
             
             # Excelファイルを処理
-            results = process_excel_file(excel_file, skip_duplicates, update_existing)
+            results = process_excel_file(excel_file, skip_duplicates, update_existing, skip_check_digit)
             
             # 結果をメッセージとして表示
             if results['created'] > 0:

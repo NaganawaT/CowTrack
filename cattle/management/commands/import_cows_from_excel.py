@@ -30,6 +30,12 @@ class Command(BaseCommand):
             help='既存データを更新する'
         )
         parser.add_argument(
+            '--skip-check-digit',
+            action='store_true',
+            default=False,
+            help='チェックデジット検証をスキップする'
+        )
+        parser.add_argument(
             '--move-processed',
             action='store_true',
             default=True,
@@ -40,6 +46,7 @@ class Command(BaseCommand):
         directory = options['directory']
         skip_duplicates = options['skip_duplicates']
         update_existing = options['update_existing']
+        skip_check_digit = options['skip_check_digit']
         move_processed = options['move_processed']
 
         # ディレクトリが存在しない場合は作成
@@ -93,7 +100,8 @@ class Command(BaseCommand):
                     results = process_excel_file(
                         django_file, 
                         skip_duplicates=skip_duplicates, 
-                        update_existing=update_existing
+                        update_existing=update_existing,
+                        skip_check_digit=skip_check_digit
                     )
                 
                 # 結果を表示

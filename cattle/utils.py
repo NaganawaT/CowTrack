@@ -215,7 +215,7 @@ def get_shed_hierarchy_combined():
     
     return hierarchy
 
-def process_excel_file(file, skip_duplicates=True, update_existing=False):
+def process_excel_file(file, skip_duplicates=True, update_existing=False, skip_check_digit=False):
     """
     Excelファイルを処理して牛のデータを一括登録する
     
@@ -223,6 +223,7 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False):
         file: アップロードされたExcelファイル
         skip_duplicates: 重複データをスキップするかどうか
         update_existing: 既存データを更新するかどうか
+        skip_check_digit: チェックデジット検証をスキップするかどうか
     
     Returns:
         dict: 処理結果の詳細
@@ -294,8 +295,29 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False):
                     continue
                 
                 # チェックデジット検証
-                if not validate_cattle_id(cow_number):
-                    results['errors'].append(f'行{index + 2}: 個体識別番号のチェックデジットが無効です: {cow_number}')
+                if not skip_check_digit and not validate_cattle_id(cow_number):
+                    # チェックデジットの詳細計算
+                    body_number = cow_number[:9]
+                    actual_check_digit = int(cow_number[9])
+                    calculated_check_digit = calculate_check_digit(body_number)
+                    
+                    # 詳細なエラーメッセージを作成
+                    error_detail = f'行{index + 2}: 個体識別番号のチェックデジットが無効です\n'
+                    error_detail += f'  個体識別番号: {cow_number}\n'
+                    error_detail += f'  本体番号: {body_number}\n'
+                    error_detail += f'  実際のチェックデジット: {actual_check_digit}\n'
+                    error_detail += f'  計算されたチェックデジット: {calculated_check_digit}\n'
+                    error_detail += f'  牛房: {shed_code}\n'
+                    if '導入日' in df.columns and pd.notna(row['導入日']):
+                        error_detail += f'  導入日: {row["導入日"]}\n'
+                    if '性別' in df.columns and pd.notna(row['性別']):
+                        error_detail += f'  性別: {row["性別"]}\n'
+                    if '導入元地域' in df.columns and pd.notna(row['導入元地域']):
+                        error_detail += f'  導入元地域: {row["導入元地域"]}\n'
+                    error_detail += f'  → 個体識別番号が正しいか確認してください。\n'
+                    error_detail += f'  → チェックデジット検証をスキップする場合は、オプションを有効にしてください。'
+                    
+                    results['errors'].append(error_detail)
                     continue
                 
                 # オプション項目の取得

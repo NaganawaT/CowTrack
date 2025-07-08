@@ -33,6 +33,16 @@ class ExcelUploadForm(forms.Form):
             'class': 'form-check-input'
         })
     )
+    
+    skip_check_digit = forms.BooleanField(
+        label='チェックデジット検証をスキップ',
+        required=False,
+        initial=False,
+        help_text='個体識別番号のチェックデジット検証をスキップします（推奨しません）',
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input'
+        })
+    )
 
 class CowForm(forms.ModelForm):
     """牛登録・編集用フォーム"""
