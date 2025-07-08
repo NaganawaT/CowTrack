@@ -404,34 +404,6 @@ def get_shed_groups():
     from django.db.models import Count
     return Cow.objects.values('shed_code').annotate(count=Count('id')).order_by('shed_code')
 
-def get_shed_hierarchy():
-    """牛舎の階層構造を取得"""
-    return {
-        '導入牛舎': {
-            '導入牛舎A': ['A001', 'A002', 'A003'],
-            '導入牛舎B': ['B001', 'B002', 'B003'],
-        },
-        '肥育牛舎': {
-            '肥育牛舎1': ['1001', '1002', '1003'],
-            '肥育牛舎2': ['2001', '2002', '2003'],
-        }
-    }
-
-def get_shed_hierarchy_combined():
-    """牛舎の階層構造（統合版）を取得"""
-    hierarchy = get_shed_hierarchy()
-    combined = {}
-    
-    for category, subcategories in hierarchy.items():
-        for subcategory, sheds in subcategories.items():
-            for shed in sheds:
-                combined[shed] = {
-                    'category': category,
-                    'subcategory': subcategory
-                }
-    
-    return combined
-
 def calculate_check_digit(body_number):
     """
     牛個体識別番号のチェックデジットを計算する（モジュラス10、重み3,1方式）
