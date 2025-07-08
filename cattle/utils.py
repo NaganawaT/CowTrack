@@ -412,7 +412,7 @@ def get_shed_hierarchy_combined():
 
 def calculate_check_digit(body_number):
     """
-    牛個体識別番号のチェックデジットを計算する（モジュラス11方式）
+    牛個体識別番号のチェックデジットを計算する（モジュラス10、重み3,1方式）
     
     Args:
         body_number: 9桁の本体番号（文字列）
@@ -423,24 +423,22 @@ def calculate_check_digit(body_number):
     if len(body_number) != 9 or not body_number.isdigit():
         raise ValueError("本体番号は9桁の数字である必要があります")
     
-    # 重み配列（左から順番、3, 1, 7, 3, 1, 7, 3, 1, 7）
-    weights = [3, 1, 7, 3, 1, 7, 3, 1, 7]
+    # 重み配列（右から順番、3, 1, 3, 1, 3, 1, 3, 1, 3）
+    weights = [3, 1, 3, 1, 3, 1, 3, 1, 3]
     
     # 各桁 × 重み の合計を計算
     total = 0
     for i, digit in enumerate(body_number):
         total += int(digit) * weights[i]
     
-    # 11で割った余りを計算
-    remainder = total % 11
+    # 10で割った余りを計算
+    remainder = total % 10
     
     # チェックデジットを計算
     if remainder == 0:
         check_digit = 0
-    elif remainder == 1:
-        check_digit = 0  # 1の場合は0
     else:
-        check_digit = 11 - remainder
+        check_digit = 10 - remainder
     
     return check_digit
 
