@@ -582,5 +582,5 @@ def register_cows_from_preview(cow_details):
             else:
                 results['errors'].append(f'{cow_number} は既に登録されています')
         except Exception as e:
-            results['errors'].append(f'{detail.get('cow_number', '')}: {str(e)}')
+            results['errors'].append(f'{detail.get("cow_number", "")}: {str(e)}')
     return results 
