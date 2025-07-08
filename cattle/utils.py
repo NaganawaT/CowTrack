@@ -293,6 +293,11 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False):
                     results['errors'].append(f'行{index + 2}: 個体識別番号は10桁である必要があります（ゼロ埋め後）: {cow_number}')
                     continue
                 
+                # チェックデジット検証
+                if not validate_cattle_id(cow_number):
+                    results['errors'].append(f'行{index + 2}: 個体識別番号のチェックデジットが無効です: {cow_number}')
+                    continue
+                
                 # オプション項目の取得
                 intake_date = None
                 if '導入日' in df.columns and pd.notna(row['導入日']):
@@ -308,12 +313,14 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False):
                 gender = 'female'  # デフォルト
                 if '性別' in df.columns and pd.notna(row['性別']):
                     gender_text = str(row['性別']).strip()
-                    if gender_text in ['去勢', 'castrated']:
-                        gender = 'castrated'
+                    if gender_text in ['オス', 'male']:
+                        gender = 'male'
                     elif gender_text in ['メス', 'female']:
                         gender = 'female'
+                    elif gender_text in ['去勢', 'castrated']:
+                        gender = 'castrated'
                     else:
-                        results['errors'].append(f'行{index + 2}: 性別の値が正しくありません: {gender_text}')
+                        results['errors'].append(f'行{index + 2}: 性別の値が正しくありません: {gender_text} (オス、メス、去勢のいずれかを入力してください)')
                         continue
                 
                 origin_region = row.get('導入元地域', '')
@@ -401,4 +408,73 @@ def get_shed_hierarchy_combined():
                     'subcategory': subcategory
                 }
     
-    return combined 
+    return combined
+
+def calculate_check_digit(body_number):
+    """
+    牛個体識別番号のチェックデジットを計算する（モジュラス11方式）
+    
+    Args:
+        body_number: 9桁の本体番号（文字列）
+    
+    Returns:
+        int: チェックデジット（0-9）
+    """
+    if len(body_number) != 9 or not body_number.isdigit():
+        raise ValueError("本体番号は9桁の数字である必要があります")
+    
+    # 重み配列（左から順番、3, 1, 7, 3, 1, 7, 3, 1, 7）
+    weights = [3, 1, 7, 3, 1, 7, 3, 1, 7]
+    
+    # 各桁 × 重み の合計を計算
+    total = 0
+    for i, digit in enumerate(body_number):
+        total += int(digit) * weights[i]
+    
+    # 11で割った余りを計算
+    remainder = total % 11
+    
+    # チェックデジットを計算
+    if remainder == 0:
+        check_digit = 0
+    elif remainder == 1:
+        check_digit = 0  # 1の場合は0
+    else:
+        check_digit = 11 - remainder
+    
+    return check_digit
+
+def validate_cattle_id(cattle_id):
+    """
+    牛個体識別番号のチェックデジットを検証する
+    
+    Args:
+        cattle_id: 10桁の個体識別番号（文字列）
+    
+    Returns:
+        bool: 有効な場合はTrue、無効な場合はFalse
+    """
+    if len(cattle_id) != 10 or not cattle_id.isdigit():
+        return False
+    
+    body_number = cattle_id[:9]  # 最初の9桁
+    expected_check_digit = int(cattle_id[9])  # 最後の1桁
+    
+    try:
+        calculated_check_digit = calculate_check_digit(body_number)
+        return calculated_check_digit == expected_check_digit
+    except ValueError:
+        return False
+
+def generate_valid_cattle_id(body_number):
+    """
+    9桁の本体番号から有効な10桁の個体識別番号を生成する
+    
+    Args:
+        body_number: 9桁の本体番号（文字列）
+    
+    Returns:
+        str: 10桁の有効な個体識別番号
+    """
+    check_digit = calculate_check_digit(body_number)
+    return body_number + str(check_digit) 

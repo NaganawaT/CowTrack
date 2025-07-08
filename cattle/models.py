@@ -54,8 +54,9 @@ class Cow(models.Model):
     ]
     
     GENDER_CHOICES = [
-        ('castrated', '去勢'),
+        ('male', 'オス'),
         ('female', 'メス'),
+        ('castrated', '去勢'),
     ]
     
     ORIGIN_REGION_CHOICES = [
