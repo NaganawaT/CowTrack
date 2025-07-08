@@ -281,9 +281,16 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False):
                     results['errors'].append(f'行{index + 2}: 牛房が空です')
                     continue
                 
+                # 個体識別番号を10桁にゼロ埋め
+                if cow_number.isdigit():
+                    cow_number = cow_number.zfill(10)  # 10桁にゼロ埋め
+                else:
+                    results['errors'].append(f'行{index + 2}: 個体識別番号は数字である必要があります: {cow_number}')
+                    continue
+                
                 # 個体識別番号の形式チェック（10桁の数字）
-                if not cow_number.isdigit() or len(cow_number) != 10:
-                    results['errors'].append(f'行{index + 2}: 個体識別番号は10桁の数字である必要があります: {cow_number}')
+                if len(cow_number) != 10:
+                    results['errors'].append(f'行{index + 2}: 個体識別番号は10桁である必要があります（ゼロ埋め後）: {cow_number}')
                     continue
                 
                 # オプション項目の取得
