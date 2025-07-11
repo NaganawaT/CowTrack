@@ -533,6 +533,9 @@ def get_cows_by_shed(request):
     if not shed_code:
         return JsonResponse({'error': '牛舎番号が指定されていません'}, status=400)
     
+    # shed_codeの空白を除去
+    shed_code = shed_code.strip()
+    
     try:
         cows = Cow.objects.filter(
             shed_code=shed_code,
