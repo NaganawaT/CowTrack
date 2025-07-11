@@ -288,6 +288,7 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False, skip_c
         column_mapping = {
             '個体識別番号': 'cow_number',
             '牛房': 'shed_code',
+            '牛舎番号': 'shed_code',  # 牛房と牛舎番号の両方に対応
             '導入日': 'intake_date',
             '性別': 'gender',
             '導入元地域': 'origin_region',
@@ -296,8 +297,13 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False, skip_c
         
         # 実際の列名を確認
         actual_columns = list(df.columns)
-        required_columns = ['個体識別番号', '牛房']
+        required_columns = ['個体識別番号']
         missing_columns = [col for col in required_columns if col not in actual_columns]
+        
+        # 牛房または牛舎番号のいずれかが必要
+        shed_column_found = '牛房' in actual_columns or '牛舎番号' in actual_columns
+        if not shed_column_found:
+            missing_columns.append('牛房または牛舎番号')
         
         if missing_columns:
             raise ValidationError(f'必要な列が不足しています: {", ".join(missing_columns)}')
@@ -307,7 +313,14 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False, skip_c
             try:
                 # データの取得と検証
                 cow_number = str(row['個体識別番号']).strip()
-                shed_code = str(row['牛房']).strip()
+                
+                # 牛房または牛舎番号から値を取得
+                if '牛舎番号' in df.columns and pd.notna(row['牛舎番号']):
+                    shed_code = str(row['牛舎番号']).strip()
+                elif '牛房' in df.columns and pd.notna(row['牛房']):
+                    shed_code = str(row['牛房']).strip()
+                else:
+                    shed_code = ''
                 
                 # 必須項目の検証
                 if not cow_number or cow_number == 'nan':
@@ -532,7 +545,14 @@ def preview_excel_file(file):
     results['total_rows'] = len(df)
     for index, row in df.iterrows():
         cow_number = str(row['個体識別番号']).strip()
-        shed_code = str(row['牛房']).strip()
+        
+        # 牛房または牛舎番号から値を取得
+        if '牛舎番号' in df.columns and pd.notna(row['牛舎番号']):
+            shed_code = str(row['牛舎番号']).strip()
+        elif '牛房' in df.columns and pd.notna(row['牛房']):
+            shed_code = str(row['牛房']).strip()
+        else:
+            shed_code = ''
         if cow_number.isdigit():
             cow_number = cow_number.zfill(10)
         else:
