@@ -405,7 +405,10 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False, skip_c
                 else:
                     origin_region = ''
                 
-                status = row.get('ステータス', 'active')
+                # ステータスの自動設定
+                status = row.get('ステータス', '')
+                if (not status or str(status).strip() == '' or str(status).lower() == 'nan') and getattr(file, 'name', '') == '飼養牛一覧.xlsx':
+                    status = 'active'
                 if status not in ['active', 'inactive']:
                     status = 'active'
                 
