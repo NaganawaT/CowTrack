@@ -2,6 +2,7 @@ import pandas as pd
 from datetime import datetime
 from django.core.exceptions import ValidationError
 from .models import Cow
+import os
 
 def classify_shed_code(shed_code):
     """
@@ -407,7 +408,8 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False, skip_c
                 
                 # ステータスの自動設定
                 status = row.get('ステータス', '')
-                if (not status or str(status).strip() == '' or str(status).lower() == 'nan') and getattr(file, 'name', '') == '飼養牛一覧.xlsx':
+                filename = os.path.basename(getattr(file, 'name', ''))
+                if (not status or str(status).strip() == '' or str(status).lower() == 'nan') and filename.endswith('飼養牛一覧.xlsx'):
                     status = 'active'
                 if status not in ['active', 'inactive']:
                     status = 'active'
