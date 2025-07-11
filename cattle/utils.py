@@ -215,6 +215,42 @@ def get_shed_hierarchy_combined():
     
     return hierarchy
 
+def convert_purchase_source_to_region(purchase_source):
+    """
+    購入先を導入元地域に変換する
+    
+    Args:
+        purchase_source (str): 購入先の文字列
+    
+    Returns:
+        str: 導入元地域
+    """
+    if not purchase_source or purchase_source == 'nan':
+        return ''
+    
+    purchase_source = str(purchase_source).strip()
+    
+    # 購入先から導入元地域への変換マッピング
+    conversion_map = {
+        '関家畜流通センター': '関',
+        '曽於中央家畜市場': '曽於',
+        '自家産': '自家産',
+        '南北海道家畜市場': '北海道',
+        '飛騨家畜流通センター': '飛騨'
+    }
+    
+    # 完全一致で検索
+    if purchase_source in conversion_map:
+        return conversion_map[purchase_source]
+    
+    # 部分一致で検索（より柔軟な対応）
+    for key, value in conversion_map.items():
+        if key in purchase_source or purchase_source in key:
+            return value
+    
+    # 変換できない場合は元の値をそのまま返す
+    return purchase_source
+
 def process_excel_file(file, skip_duplicates=True, update_existing=False, skip_check_digit=False):
     """
     Excelファイルを処理して牛のデータを一括登録する
@@ -345,9 +381,14 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False, skip_c
                         results['errors'].append(f'行{index + 2}: 性別の値が正しくありません: {gender_text} (オス、メス、去勢のいずれかを入力してください)')
                         continue
                 
-                origin_region = row.get('導入元地域', '')
-                if origin_region and origin_region != 'nan':
-                    origin_region = str(origin_region).strip()
+                # 導入元地域の処理（購入先から変換）
+                origin_region = ''
+                if '購入先' in df.columns and pd.notna(row['購入先']):
+                    # 購入先から導入元地域に変換
+                    origin_region = convert_purchase_source_to_region(row['購入先'])
+                elif '導入元地域' in df.columns and pd.notna(row['導入元地域']):
+                    # 直接導入元地域が指定されている場合
+                    origin_region = str(row['導入元地域']).strip()
                 else:
                     origin_region = ''
                 
@@ -508,7 +549,7 @@ def preview_excel_file(file):
             'shed_code': shed_code,
             'intake_date': str(row['導入日']) if '導入日' in df.columns and pd.notna(row['導入日']) else '',
             'gender': str(row['性別']) if '性別' in df.columns and pd.notna(row['性別']) else '',
-            'origin_region': str(row['導入元地域']) if '導入元地域' in df.columns and pd.notna(row['導入元地域']) else '',
+            'origin_region': convert_purchase_source_to_region(row['購入先']) if '購入先' in df.columns and pd.notna(row['購入先']) else (str(row['導入元地域']) if '導入元地域' in df.columns and pd.notna(row['導入元地域']) else ''),
             'status': str(row['ステータス']) if 'ステータス' in df.columns and pd.notna(row['ステータス']) else '',
         }
         if validate_cattle_id(cow_number):

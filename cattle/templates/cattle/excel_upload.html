@@ -201,8 +201,17 @@
             <li><strong>個体識別番号</strong>（必須）: 10桁の数字（先頭のゼロは自動的に補完されます）</li>
             <li><strong>牛房</strong>（必須）: 牛房の番号</li>
             <li><strong>導入日</strong>（任意）: YYYY/MM/DD形式</li>
-                            <li><strong>性別</strong>（任意）: "オス"、"メス"、"去勢"のいずれか</li>
-            <li><strong>導入元地域</strong>（任意）: 北海道、曽於、関、飛騨、自家など</li>
+            <li><strong>性別</strong>（任意）: "オス"、"メス"、"去勢"のいずれか</li>
+            <li><strong>購入先</strong>（任意）: 以下のいずれかを入力すると自動的に導入元地域に変換されます
+                <ul style="margin-top: 5px; margin-left: 20px;">
+                    <li>"関家畜流通センター" → "関"</li>
+                    <li>"曽於中央家畜市場" → "曽於"</li>
+                    <li>"自家産" → "自家産"</li>
+                    <li>"南北海道家畜市場" → "北海道"</li>
+                    <li>"飛騨家畜流通センター" → "飛騨"</li>
+                </ul>
+            </li>
+            <li><strong>導入元地域</strong>（任意）: 購入先が指定されていない場合の直接指定</li>
             <li><strong>ステータス</strong>（任意）: "active"（活動中）または"inactive"（非活動）</li>
         </ul>
     </div>
@@ -282,7 +291,7 @@
                     <th style="border: 1px solid #dee2e6; padding: 8px;">牛房</th>
                     <th style="border: 1px solid #dee2e6; padding: 8px;">導入日</th>
                     <th style="border: 1px solid #dee2e6; padding: 8px;">性別</th>
-                    <th style="border: 1px solid #dee2e6; padding: 8px;">導入元地域</th>
+                    <th style="border: 1px solid #dee2e6; padding: 8px;">購入先</th>
                     <th style="border: 1px solid #dee2e6; padding: 8px;">ステータス</th>
                 </tr>
                 <tr>
@@ -290,7 +299,7 @@
                     <td style="border: 1px solid #dee2e6; padding: 8px;">A001</td>
                     <td style="border: 1px solid #dee2e6; padding: 8px;">2024/01/15</td>
                     <td style="border: 1px solid #dee2e6; padding: 8px;">メス</td>
-                    <td style="border: 1px solid #dee2e6; padding: 8px;">北海道</td>
+                    <td style="border: 1px solid #dee2e6; padding: 8px;">関家畜流通センター</td>
                     <td style="border: 1px solid #dee2e6; padding: 8px;">active</td>
                 </tr>
             </table>
