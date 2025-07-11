@@ -328,7 +328,7 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False, skip_c
                     continue
                 
                 if not shed_code or shed_code == 'nan':
-                    results['errors'].append(f'行{index + 2}: 牛房が空です')
+                    results['errors'].append(f'行{index + 2}: 牛舎番号が空です')
                     continue
                 
                 # 個体識別番号を10桁にゼロ埋め
@@ -356,7 +356,7 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False, skip_c
                     error_detail += f'  本体番号: {body_number}\n'
                     error_detail += f'  実際のチェックデジット: {actual_check_digit}\n'
                     error_detail += f'  計算されたチェックデジット: {calculated_check_digit}\n'
-                    error_detail += f'  牛房: {shed_code}\n'
+                    error_detail += f'  牛舎番号: {shed_code}\n'
                     if '導入日' in df.columns and pd.notna(row['導入日']):
                         error_detail += f'  導入日: {row["導入日"]}\n'
                     if '性別' in df.columns and pd.notna(row['性別']):
