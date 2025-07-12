@@ -540,11 +540,15 @@ def get_cows_by_shed(request):
         cows = Cow.objects.filter(
             shed_code=shed_code,
             status='active'
-        ).order_by('cow_number')
+        )
+        
+        # 下5桁の牛番号を数値順で並び替え
+        cows_list = list(cows)
+        cows_list.sort(key=lambda cow: int(cow.cow_number[-5:]) if cow.cow_number.isdigit() and len(cow.cow_number) >= 5 else float('inf'))
         
         # display_nameを含むデータを構築
         cows_data = []
-        for cow in cows:
+        for cow in cows_list:
             try:
                 # origin_regionは文字列フィールドなので直接アクセス
                 region_short = cow.origin_region if cow.origin_region else ''
