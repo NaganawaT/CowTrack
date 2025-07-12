@@ -149,6 +149,21 @@ class CowUpdateView(UpdateView):
         messages.error(self.request, '入力内容に誤りがあります。')
         return super().form_invalid(form)
 
+class CowDeleteView(DeleteView):
+    model = Cow
+    template_name = 'cattle/cow_confirm_delete.html'
+    success_url = reverse_lazy('cattle:cow_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'{self.object.cow_number} の削除確認'
+        return context
+
+    def delete(self, request, *args, **kwargs):
+        cow = self.get_object()
+        messages.success(request, f'牛番号 {cow.cow_number} を削除しました。')
+        return super().delete(request, *args, **kwargs)
+
 # 治療履歴管理ビュー
 class TreatmentListView(ListView):
     model = Treatment
