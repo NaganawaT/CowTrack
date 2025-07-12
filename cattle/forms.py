@@ -168,7 +168,7 @@ class TreatmentForm(forms.ModelForm):
         # 治療担当者（User）のみを選択肢に表示
         from django.contrib.auth import get_user_model
         User = get_user_model()
-        doctors = User.objects.filter(role='治療担当', is_active=True).order_by('email')
+        doctors = User.objects.filter(groups__name='治療担当', is_active=True).order_by('email')
         doctor_choices = [('', '主治療担当者を選択してください（任意）')] + [(user.id, user.email) for user in doctors]
         self.fields['primary_doctor'].choices = doctor_choices
         
@@ -342,7 +342,7 @@ class DailyVeterinarianForm(forms.ModelForm):
         # 治療担当者（User）のみを選択肢に表示
         from django.contrib.auth import get_user_model
         User = get_user_model()
-        doctors = User.objects.filter(role='治療担当', is_active=True).order_by('email')
+        doctors = User.objects.filter(groups__name='治療担当', is_active=True).order_by('email')
         doctor_choices = [('', '主治療担当者を選択してください（任意）')] + [(user.id, user.email) for user in doctors]
         self.fields['primary_doctor'].choices = doctor_choices
         
