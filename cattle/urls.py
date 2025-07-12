@@ -23,7 +23,7 @@ urlpatterns = [
     path('cows/', views.cow_list, name='cow_list'),
     path('cows/add/', views.cow_create, name='cow_create'),
     path('cows/<int:cow_id>/', views.cow_detail, name='cow_detail'),
-    path('cows/<int:cow_id>/edit/', views.cow_create, name='cow_edit'),
+    path('cows/<int:cow_id>/edit/', views.CowUpdateView.as_view(), name='cow_edit'),
     
     # 治療履歴管理
     path('treatments/', views.TreatmentListView.as_view(), name='treatment_list'),
