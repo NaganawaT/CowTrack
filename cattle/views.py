@@ -152,7 +152,7 @@ class CowUpdateView(UpdateView):
 class CowDeleteView(DeleteView):
     model = Cow
     template_name = 'cattle/cow_confirm_delete.html'
-    success_url = reverse_lazy('cattle:cow_list')
+    success_url = reverse_lazy('cattle:custom_admin_cows')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
