@@ -80,7 +80,7 @@
         <a href="{% url 'cattle:feeding_observation_edit' observation.id %}" class="btn btn-primary">編集</a>
         <a href="{% url 'cattle:cow_detail' observation.cow.id %}" class="btn btn-secondary">牛の詳細</a>
         <a href="{% url 'cattle:feeding_observation_list' %}" class="btn btn-secondary">一覧に戻る</a>
-        <a href="{% url 'cattle:feeding_observation_delete' observation.id %}" class="btn btn-danger">
+        <a href="{% url 'cattle:feeding_observation_confirm_delete' observation.id %}" class="btn btn-danger">
             <i class="fas fa-trash"></i> 削除
         </a>
     </div>
