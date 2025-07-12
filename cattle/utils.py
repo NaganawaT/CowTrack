@@ -391,9 +391,21 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False, skip_c
                         gender = 'female'
                     elif gender_text in ['去勢', 'castrated']:
                         gender = 'castrated'
+                    elif gender_text == '' or gender_text.lower() == 'nan':
+                        gender = 'female'
                     else:
                         results['errors'].append(f'行{index + 2}: 性別の値が正しくありません: {gender_text} (オス、メス、去勢のいずれかを入力してください)')
                         continue
+                else:
+                    gender = 'female'
+                
+                # ステータスの自動設定
+                status = row.get('ステータス', '')
+                filename = os.path.basename(getattr(file, 'name', ''))
+                if (not pd.notna(status) or str(status).strip() == '' or str(status).lower() == 'nan') and filename.endswith('飼養牛一覧.xlsx'):
+                    status = 'active'
+                if status not in ['active', 'inactive']:
+                    status = 'active'
                 
                 # 導入元地域の処理（購入先から変換）
                 origin_region = ''
@@ -405,14 +417,6 @@ def process_excel_file(file, skip_duplicates=True, update_existing=False, skip_c
                     origin_region = str(row['導入元地域']).strip()
                 else:
                     origin_region = ''
-                
-                # ステータスの自動設定
-                status = row.get('ステータス', '')
-                filename = os.path.basename(getattr(file, 'name', ''))
-                if (not status or str(status).strip() == '' or str(status).lower() == 'nan') and filename.endswith('飼養牛一覧.xlsx'):
-                    status = 'active'
-                if status not in ['active', 'inactive']:
-                    status = 'active'
                 
                 # 既存データの確認
                 existing_cow = Cow.objects.filter(cow_number=cow_number).first()
