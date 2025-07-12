@@ -609,8 +609,12 @@ def register_cows_from_preview(cow_details):
                 except:
                     pass
             gender = detail.get('gender', 'female')
+            if not gender or str(gender).strip() == '' or str(gender).lower() == 'nan':
+                gender = 'female'
             origin_region = detail.get('origin_region', '')
             status = detail.get('status', 'active')
+            if not status or str(status).strip() == '' or str(status).lower() == 'nan':
+                status = 'active'
             if not Cow.objects.filter(cow_number=cow_number).exists():
                 Cow.objects.create(
                     cow_number=cow_number,
