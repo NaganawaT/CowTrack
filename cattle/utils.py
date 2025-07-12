@@ -569,6 +569,12 @@ def preview_excel_file(file):
         if len(cow_number) != 10:
             continue
         # 詳細情報取得
+        gender = str(row['性別']) if '性別' in df.columns and pd.notna(row['性別']) else ''
+        if not gender or gender.strip() == '' or gender.lower() == 'nan':
+            gender = 'female'
+        status = str(row['ステータス']) if 'ステータス' in df.columns and pd.notna(row['ステータス']) else ''
+        if not status or status.strip() == '' or status.lower() == 'nan':
+            status = 'active'
         detail = {
             'row': index + 2,
             'cow_number': cow_number,
@@ -577,9 +583,9 @@ def preview_excel_file(file):
             'calculated_check_digit': str(calculate_check_digit(cow_number[:9])),
             'shed_code': shed_code,
             'intake_date': str(row['導入日']) if '導入日' in df.columns and pd.notna(row['導入日']) else '',
-            'gender': str(row['性別']) if '性別' in df.columns and pd.notna(row['性別']) else '',
+            'gender': gender,
             'origin_region': convert_purchase_source_to_region(row['購入先']) if '購入先' in df.columns and pd.notna(row['購入先']) else (str(row['導入元地域']) if '導入元地域' in df.columns and pd.notna(row['導入元地域']) else ''),
-            'status': str(row['ステータス']) if 'ステータス' in df.columns and pd.notna(row['ステータス']) else '',
+            'status': status,
         }
         if validate_cattle_id(cow_number):
             results['valid'].append(detail)
